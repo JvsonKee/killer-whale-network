@@ -1,21 +1,34 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from util import scrape_pods, scrape_pod
+from util import scrape_ids
 
-def main():
-    url = 'https://www.orcaconservancy.org/meet-the-southern-residents'
+def scrape():
     driver = webdriver.Chrome()
+    url = 'https://killerwhales.fandom.com/wiki/Category:Living_Wild_Orcas'
     driver.get(url)
 
-    pods = scrape_pods(driver)
+    scrape_ids(driver)
 
-    print(pods)
+scrape()
 
-    while True:
-        continue
 
-if __name__ == '__main__':
-    main()
+
+
+# use this to get total number of sections on page
+# //*[@id="mw-content-text"]/div[3]
+
+# iterate through each section and only scrape the data for "J", "K", and "L"
+# //*[@id="mw-content-text"]/div[3]/div[index]/div
+
+# this contains the sections with each whale's name
+# //*[@id="mw-content-text"]/div[3]/div[7]/ul
+
+# extract the name of the whale
+# //*[@id="mw-content-text"]/div[3]/div[7]/ul/li[1]/a
+
+
+
+
 
 
 # jpod: /html/body/div[1]/main/article/section[3]/div[2]/div/div/div/div[5]/div/div/div/p[1]

@@ -1,5 +1,34 @@
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
+import db.db as db
+
+def scrape_ids(driver):
+    living_sections_len = len(driver.find_elements(By.XPATH, '//*[@id="mw-content-text"]/div[3]/div'))
+    
+    pod_indices = []
+    pod_counts = []
+
+    for i in range(1, living_sections_len):
+        curr_letter = driver.find_element(By.XPATH, f'//*[@id="mw-content-text"]/div[3]/div[{i}]/div').text
+        
+        if curr_letter == 'J' or curr_letter == 'K' or curr_letter == 'L':
+            pod_indices.append(i)
+            pod_counts.append(len(driver.find_elements(By.XPATH, f'//*[@id="mw-content-text"]/div[3]/div[{i}]/ul/li')))
+
+    for i in range(len(pod_indices)):
+        for j in range(1, pod_counts[i]):
+            id_and_name = driver.find_element(By.XPATH, f'//*[@id="mw-content-text"]/div[3]/div[{pod_indices[i]}]/ul/li[{j}]/a').text
+            
+            parts = id_and_name.split(" ")
+
+            if (len(parts) < 2):
+                continue
+
+            whale_id = parts[0]
+            name = parts[1]
+
+            whale = (whale_id, name, None, None, None)
+            db.insert_whale(whale)
 
 def get_section_limit(driver, section_id):
     section_container = driver.find_element(By.XPATH, f'/html/body/div[1]/main/article/section[{section_id}]/div[2]/div/div/div')
