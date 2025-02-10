@@ -1,4 +1,4 @@
-from database.database import insert_whale, insert_pod
+from database.database import insert_whale, insert_pod, update_whale
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.action_chains import ActionChains 
@@ -83,12 +83,6 @@ def scrape_whales(driver, cur, whales):
 
 def scrape_whale(driver, cur, whale_id):
     gender, birth_year, death_year, mother_id, father_id = (None, None, None, None, None)
-
-    query = """ 
-                UPDATE whale 
-                SET gender = %s, birth_year = %s, death_year = %s, mother_id = %s, father_id = %s
-                WHERE whale_id = %s;             
-            """
     
     gender = scrape_gender(driver)
     birth_year = scrape_birth_year(driver)
@@ -96,7 +90,9 @@ def scrape_whale(driver, cur, whale_id):
     mother_id = scrape_mother_id(driver)
     scrape_father_id(driver)
 
-    cur.execute(query, (gender, birth_year, death_year, mother_id, father_id, whale_id))
+    whale = (gender, birth_year, death_year, mother_id, father_id, whale_id)
+    
+    update_whale(cur, whale)
 
 
 def scrape_gender(driver):
@@ -193,21 +189,11 @@ def scrape_father_id(driver):
 def insert_granny(cur):
     whale_id = 'J2'
     name = 'Granny'
-    gender = 'female'
-    birth_year = 1936
-    death_year = 2016
-    mother_id = None
-    father_id = None
     pod_id = 'J'
 
-    granny = (whale_id, name, gender, birth_year, death_year, mother_id, father_id, pod_id)
+    granny = (whale_id, name, None, None, None, None, None, pod_id)
 
-    query = """
-                INSERT INTO whale (whale_id, name, gender, birth_year, death_year, mother_id, father_id, pod_id) VALUES
-                (%s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT (whale_id) DO NOTHING;
-            """
-    
-    cur.execute(query, granny)
+    insert_whale(cur, granny)
 
 
 # parses an input string and returns the year found within it
