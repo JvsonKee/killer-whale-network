@@ -62,6 +62,15 @@ def insert_whale(cur, whale):
 
     cur.execute(query, whale)
 
+def update_whale(cur, whale):
+    query = """ 
+            UPDATE whale 
+            SET gender = %s, birth_year = %s, death_year = %s, mother_id = %s, father_id = %s
+            WHERE whale_id = %s;             
+        """
+
+    cur.execute(query, whale)
+
 def fetch_whales(cur):
     cur.execute("SELECT whale_id, name FROM whale;")
     return cur.fetchall()
