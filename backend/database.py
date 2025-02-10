@@ -78,3 +78,46 @@ def fetch_whales(cur):
 def fetch_pods(cur):
     cur.execute("SELECT * FROM pod;")
     return cur.fetchall()
+
+def fetch_whales_from_pod(cur, pod_id):
+    query = "SELECT * FROM whale WHERE pod_id = %s;"
+    cur.execute(query, pod_id)
+    return cur.fetchall()
+
+def fetch_living(cur):
+    cur.execute("SELECT * FROM whale WHERE death_year IS NULL;")
+    return cur.fetchall()
+
+def fetch_deceased(cur):
+    cur.execute("SELECT * FROM whale WHERE death_year IS NOT NULL;")
+    return cur.fetchall()
+
+def fetch_living_from_pod(cur, pod_id):
+    query = """
+                SELECT * 
+                FROM whale 
+                WHERE death_year IS NULL AND pod_id = %s;
+            """
+    
+    cur.execute(query, pod_id)
+    return cur.fetchall()
+
+def fetch_deceased_from_pod(cur, pod_id):
+    query = """
+                SELECT * 
+                FROM whale 
+                WHERE death_year IS NOT NULL AND pod_id = %s;
+            """
+    
+    cur.execute(query, pod_id)
+    return cur.fetchall()
+
+def fetch_children(cur, parent_id):
+    query = """
+                SELECT *
+                FROM whale 
+                WHERE %s IN (mother_id, father_id);
+            """
+    
+    cur.execute(query, (parent_id,))
+    return cur.fetchall()
