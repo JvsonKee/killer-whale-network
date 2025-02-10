@@ -77,38 +77,50 @@ def scrape_whales(driver, cur, whales):
             path = f'{whale["whale_id"]}'
 
         driver.get(f'https://killerwhales.fandom.com/wiki/{path}')
-        # print(path)
         
-        # scrape data here (status, gender, dob, dod, mother, father)
         scrape_whale(driver, cur, whale_id)
 
 
 def scrape_whale(driver, cur, whale_id):
-    gender = None
-    birth_year = None
-    death_year = None
-    mother_id = None
-    father_id = None
+    gender, birth_year, death_year, mother_id, father_id = (None, None, None, None, None)
 
     query = """ 
                 UPDATE whale 
                 SET gender = %s, birth_year = %s, death_year = %s, mother_id = %s, father_id = %s
                 WHERE whale_id = %s;             
             """
+    
+    gender = scrape_gender(driver)
+    birth_year = scrape_birth_year(driver)
+    death_year = scrape_death_year(driver)
+    mother_id = scrape_mother_id(driver)
+    scrape_father_id(driver)
 
+    cur.execute(query, (gender, birth_year, death_year, mother_id, father_id, whale_id))
+
+
+def scrape_gender(driver):
     gender_sources = [
                         '//*[@id="mw-content-text"]/div/aside/div[2]/div',
                         '//*[@id="mw-content-text"]/div/aside/div[3]/div',
                         '//*[@id="mw-content-text"]/div/aside/div[4]/div',
                         '//*[@id="mw-content-text"]/div/aside/div[4]/div/i'
                     ]
-    
+
     for source in gender_sources:
-        gender = driver.find_element(By.XPATH, f'{source}').text.split(" ", 1)[-1].lower()
+        try:
+            gender = driver.find_element(By.XPATH, f'{source}').text.split(" ", 1)[-1].lower()
 
-        if gender in {"unknown", "male", "female"}:
-            break
+            if gender in {"unknown", "male", "female"}:
+                return gender
+            
+        except NoSuchElementException:
+            continue
 
+    return None
+        
+
+def scrape_birth_year(driver):
     birth_sources = [
         '//*[@id="mw-content-text"]/div/aside/div[3]/div',
         '//*[@id="mw-content-text"]/div/aside/div[4]/div',
@@ -116,18 +128,28 @@ def scrape_whale(driver, cur, whale_id):
     ]
 
     for source in birth_sources:
-        birth_text = driver.find_element(By.XPATH, f'{source}').text
-        birth_year = parse_year(birth_text)
+        try:
+            birth_text = driver.find_element(By.XPATH, f'{source}').text
+            birth_year = parse_year(birth_text)
 
-        if isinstance(birth_year, int):
-            break
-         
+            if isinstance(birth_year, int):
+                return birth_year
+            
+        except NoSuchElementException:
+            continue
+    
+    return None
+
+
+def scrape_death_year(driver):
     death_sources = [
         '//*[@id="mw-content-text"]/div/aside/div[4]',
         '//*[@id="mw-content-text"]/div/aside/div[6]',
         '//*[@id="mw-content-text"]/div/aside/div[9]',
         '//*[@id="mw-content-text"]/div/aside/div[5]',
     ]
+    
+    death_year = None
 
     for source in death_sources:
         try:
@@ -138,36 +160,34 @@ def scrape_whale(driver, cur, whale_id):
                 death_year = parse_year(death_text)
 
             if isinstance(death_year, int):
-                break
+                return death_year
 
         except NoSuchElementException:
-            death_year = None
+            continue
+    
+    return None
 
 
+def scrape_mother_id(driver):
     try:
         mother_elem = driver.find_element(By.XPATH, '//*[@id="mw-content-text"]/div/aside/section[2]/div/h3 | //*[@id="mw-content-text"]/div/aside/section[2]/div[1]/h3')
         if mother_elem.text == "Mother":
             mother_text = driver.find_element(By.XPATH, '//*[@id="mw-content-text"]/div/aside/section[2]/div[1]/div/ul/li/a/u/i/b | //*[@id="mw-content-text"]/div/aside/section[2]/div[1]/div/a/u/b | //*[@id="mw-content-text"]/div/aside/section[2]/div[1]/div/ul/li/a/u/b | //*[@id="mw-content-text"]/div/aside/section[2]/div[1]/div/a/u/i/b | //*[@id="mw-content-text"]/div/aside/section[2]/div[1]/div/a/b/u | //*[@id="mw-content-text"]/div/aside/section[2]/div[1]/div/b/u/a').text
-            mother_id = mother_text.split(" ")[0]
+            return mother_text.split(" ")[0]
 
     except NoSuchElementException:
-        mother_id = None
+        return None
 
+
+def scrape_father_id(driver):
     try:
         father_elem = driver.find_element(By.XPATH, '//*[@id="mw-content-text"]/div/aside/section[2]/div[2]/h3')
         if father_elem.text == "Father":
             father_text = driver.find_element(By.XPATH, '//*[@id="mw-content-text"]/div/aside/section[2]/div[2]/div/a | //*[@id="mw-content-text"]/div/aside/section[2]/div[2]/div/i/a').text
-            father_id = father_text.split(" ")[0]
+            return father_text.split(" ")[0]
 
     except NoSuchElementException:
-        father_id = None
-
-    cur.execute(query, (gender, birth_year, death_year, mother_id, father_id, whale_id))
-
-
-def parse_year(text):
-    match = re.search(r'\b(18[0-9]{2}|19[0-9]{2}|20[0-2][0-9])\b', text)
-    return int(match.group()) if match else None
+        return None
 
 
 def insert_granny(cur):
@@ -188,3 +208,9 @@ def insert_granny(cur):
             """
     
     cur.execute(query, granny)
+
+
+# parses an input string and returns the year found within it
+def parse_year(text):
+    match = re.search(r'\b(18[0-9]{2}|19[0-9]{2}|20[0-2][0-9])\b', text)
+    return int(match.group()) if match else None
