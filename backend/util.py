@@ -1,8 +1,8 @@
-from database.database import insert_whale, insert_pod, update_whale
+import re
+from database import insert_whale, insert_pod, update_whale
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.action_chains import ActionChains 
-import re
 
 def initialize_ids_and_names(driver, n, cur):
     sections_len = len(driver.find_elements(By.XPATH, '//*[@id="mw-content-text"]/div[3]/div'))

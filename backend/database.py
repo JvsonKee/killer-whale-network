@@ -72,5 +72,5 @@ def update_whale(cur, whale):
     cur.execute(query, whale)
 
 def fetch_whales(cur):
-    cur.execute("SELECT whale_id, name FROM whale;")
+    cur.execute("SELECT * FROM whale;")
     return cur.fetchall()

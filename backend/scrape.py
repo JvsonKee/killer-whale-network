@@ -1,5 +1,5 @@
 import util
-import database.database as db
+import database as db
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from psycopg2.extras import DictCursor
