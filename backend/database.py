@@ -74,3 +74,7 @@ def update_whale(cur, whale):
 def fetch_whales(cur):
     cur.execute("SELECT * FROM whale;")
     return cur.fetchall()
+
+def fetch_pods(cur):
+    cur.execute("SELECT * FROM pod;")
+    return cur.fetchall()
