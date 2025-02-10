@@ -88,7 +88,7 @@ def scrape_whale(driver, cur, whale_id):
     birth_year = scrape_birth_year(driver)
     death_year = scrape_death_year(driver)
     mother_id = scrape_mother_id(driver)
-    scrape_father_id(driver)
+    father_id = scrape_father_id(driver)
 
     whale = (gender, birth_year, death_year, mother_id, father_id, whale_id)
     
