@@ -29,6 +29,7 @@ def get_whales():
     return jsonify_whales(whales)
 
 
+# get individual whale
 @app.route('/whales/<whale_id>', methods=['GET'])
 def get_whale(whale_id):
     whale = fetch_process(db.fetch_whale, whale_id)
@@ -49,13 +50,6 @@ def get_whale(whale_id):
     return jsonify(whale)
 
 
-# gets whales from a certain pod
-@app.route('/whales/pod/<pod_id>', methods=['GET'])
-def get_whales_from_pod(pod_id):
-    whales = fetch_process(db.fetch_whales_from_pod, pod_id.upper())
-    return jsonify_whales(whales)
-
-
 # gets all living whales
 @app.route('/whales/living', methods=['GET'])
 def get_living_whales():
@@ -67,6 +61,13 @@ def get_living_whales():
 @app.route('/whales/deceased', methods=['GET'])
 def get_deceased_whales():
     whales = fetch_process(db.fetch_deceased)
+    return jsonify_whales(whales)
+
+
+# gets whales from a certain pod
+@app.route('/whales/pod/<pod_id>', methods=['GET'])
+def get_whales_from_pod(pod_id):
+    whales = fetch_process(db.fetch_whales_from_pod, pod_id.upper())
     return jsonify_whales(whales)
 
 
@@ -82,6 +83,19 @@ def get_living_from_pod(pod_id):
 def get_deceased_from_pod(pod_id):
     whales = fetch_process(db.fetch_deceased_from_pod, pod_id.upper())
     return jsonify_whales(whales)
+
+
+# gets all parents
+@app.route('/whales/parents', methods=['GET'])
+def get_parents():
+    whales = fetch_process(db.fetch_parents)
+    return jsonify_whales(whales)
+
+
+@app.route('/whales/mothers', methods=['GET'])
+def get_mother():
+    mothers = fetch_process(db.fetch_mothers)
+    return jsonify_whales(mothers)
 
 
 # gets all children of parent
