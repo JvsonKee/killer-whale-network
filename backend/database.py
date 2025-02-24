@@ -72,7 +72,7 @@ def update_whale(cur, whale):
     cur.execute(query, whale)
 
 def fetch_whales(cur):
-    cur.execute("SELECT * FROM whale;")
+    cur.execute("SELECT * FROM whale ORDER BY birth_year ASC;")
     return cur.fetchall()
 
 def fetch_whale(cur, whale_id):
@@ -86,7 +86,7 @@ def fetch_pods(cur):
     return cur.fetchall()
 
 def fetch_whales_from_pod(cur, pod_id):
-    query = "SELECT * FROM whale WHERE pod_id = %s;"
+    query = "SELECT * FROM whale WHERE pod_id = %s ORDER BY birth_year ASC"
     cur.execute(query, (pod_id,))
     return cur.fetchall()
 
@@ -118,6 +118,61 @@ def fetch_deceased_from_pod(cur, pod_id):
     cur.execute(query, (pod_id,))
     return cur.fetchall()
 
+def fetch_mothers(cur):
+    query =  """
+                SELECT *
+                FROM whale 
+                WHERE whale_id IN (
+                    SELECT DISTINCT mother_id 
+                    FROM whale 
+                    WHERE mother_id IS NOT NULL
+                );
+            """
+    cur.execute(query)
+    return cur.fetchall()
+
+def fetch_all_parents(cur):
+    query = """
+                SELECT * 
+                FROM whale w
+                WHERE EXISTS (
+                    SELECT 1 
+                    FROM whale 
+                    WHERE mother_id = w.whale_id OR father_id = w.whale_id
+                );
+            """
+
+    cur.execute(query)
+    return cur.fetchall()
+
+def fetch_ancestors(cur, whale_id):
+    query = """
+                WITH RECURSIVE Ancestors AS (
+                    SELECT whale_id, mother_id, father_id
+                    FROM whale 
+                    WHERE whale_id = %s
+
+                    UNION ALL
+
+                    SELECT w.whale_id, w.mother_id, w.father_id
+                    FROM whale w
+                    INNER JOIN Ancestors a ON w.whale_id = a.mother_id OR w.whale_id = a.father_id
+                )
+                SELECT * FROM Ancestors;
+            """
+    cur.execute(query, (whale_id,))
+    return cur.fetchall()
+
+def fetch_parent_pairs(cur):
+    query = """
+                SELECT mother_id, father_id
+                FROM whale 
+                WHERE mother_id IS NOT NULL and father_id IS NOT NULL;
+            """
+
+    cur.execute(query)
+    return cur.fetchall()
+
 def fetch_children(cur, parent_id):
     query = """
                 SELECT *
@@ -126,4 +181,22 @@ def fetch_children(cur, parent_id):
             """
     
     cur.execute(query, (parent_id,))
+    return cur.fetchall()
+
+def fetch_decendants(cur, whale_id):
+    query = """
+                WITH RECURSIVE Descendants AS (
+                    SELECT whale_id, mother_id, father_id 
+                    FROM whale
+                    WHERE whale_id = %s
+
+                    UNION ALL
+
+                    SELECT w.whale_id, w.mother_id, w.father_id
+                    FROM whale w
+                    INNER JOIN Descendants d ON w.mother_id = d.whale_id OR w.father_id = d.whale_id
+                )
+                SELECT * FROM Descendants;
+            """
+    cur.execute(query, (whale_id,))
     return cur.fetchall()
