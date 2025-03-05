@@ -1,6 +1,14 @@
+import Image from "next/image"
 
 export default async function Home() {
 	return (
-		<div>Home Page</div>
+		<div>
+			<h1>SRKW</h1>
+			<Image 
+				src='/images/srkw-all-pods.svg' 
+				alt='srkw network'
+				width='500' height='300'
+			/>
+		</div>
 	)
 }
