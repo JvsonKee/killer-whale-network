@@ -51,6 +51,8 @@ def parseFamily():
 
 for whale in whales:
     parseParents(whale)
+    print('|')
+    print('V')
     print(whale[0])
     print()
 
