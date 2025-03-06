@@ -1,4 +1,5 @@
 import database as db
+import network_script as ns
 from flask import Flask, jsonify
 from flask_cors import CORS
 
@@ -12,7 +13,7 @@ def get_pods():
     pods = fetch_process(db.fetch_pods)
 
     if not pods:
-        return jsonify({"error": f"No pods founds"}), 404
+        return jsonify({"error": "No pods founds"}), 404
 
     pod_list = [{
         'pod_id': pod[0],
@@ -104,6 +105,17 @@ def get_children(parent_id):
     whales = fetch_process(db.fetch_children, parent_id)
     return jsonify_whales(whales)
 
+# get all whale nodes
+@app.route('/network-nodes', methods=['GET'])
+def get_network_nodes():
+    nodes = ns.jsonify_whales()
+    return nodes
+
+# get all edges
+@app.route('/network-edges', methods=['GET'])
+def get_network_edges():
+    edges = ns.jsonify_edge_list()
+    return edges
 
 
 # helper function to streamline fetch process
@@ -124,7 +136,7 @@ def fetch_process(func, arg=None):
 # helper function to jsonify whale array
 def jsonify_whales(response):
 
-    if response == None:
+    if response is None:
         return jsonify({"error": "No items found."}), 404
 
     whale_list = [{
