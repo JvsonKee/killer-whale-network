@@ -2,13 +2,24 @@
 
 import { useEffect, useState } from "react";
 import WhaleLink from "../_components/WhaleLink/WhaleLink";
+import NetworkGraph from "../_components/NetworkGraph/NetworkGraph";
+import { Link } from '@/app/types/link';
+import { Whale } from '@/app/types/whale';
+import './whales.css'
 
 export default function Whales() {
     const API_BASE = 'http://127.0.0.1:5001';
 
-    const [whales, setWhales] = useState([]);
+    const [whales, setWhales] = useState<Whale[]>([]);
+    const [links, setLinks] = useState<Link[]>([]);
     const [activeStatus, setActiveStatus] = useState('');
     const [activePod, setActivePod] = useState('');
+    const [loading, setLoading] = useState(true);
+
+    const data = {
+        whales,
+        links
+    }
 
     function handleActiveStatusUpdate(status : string) {
         setActiveStatus(status);
@@ -20,13 +31,23 @@ export default function Whales() {
 
     useEffect(() => {
         async function fetchData() {
-            const res = await fetch(`${API_BASE}/whales${activeStatus}${activePod}`);
-            setWhales(await res.json());
+            const whalesRes = await fetch(`${API_BASE}/whales${activeStatus}${activePod}`);
+            setWhales(await whalesRes.json());
+
+            const linksRes = await fetch(`${API_BASE}/network-edges`);
+            setLinks(await linksRes.json());
+
+            setLoading(false);
         }
 
         fetchData();
 
+
     }, [activeStatus, activePod]);
+
+    console.log(loading)
+
+    if (loading) return;
 
     return (
         <div>
@@ -49,7 +70,10 @@ export default function Whales() {
 
             <div>
                 <h2>Whales</h2>
-                <ul>
+                <div className="network-container">
+                    <NetworkGraph data={data} />
+                </div>
+{/*                <ul>
                     {
                         whales.map((whale, i) => (
                             <li key={i}>
@@ -58,6 +82,7 @@ export default function Whales() {
                         ))
                     }
                 </ul>
+*/}
             </div>
         </div>
     )
