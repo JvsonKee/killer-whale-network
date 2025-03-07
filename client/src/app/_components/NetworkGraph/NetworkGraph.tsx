@@ -34,8 +34,6 @@ export default function NetworkGraph({ data } : NetworkGraphProps) {
 
         const manyNodes = whales.length > 99;
 
-        console.log(whales.length)
-
         const width = 1400;
         const height = 1000;
 
@@ -45,8 +43,6 @@ export default function NetworkGraph({ data } : NetworkGraphProps) {
             .attr('height', height);
 
         svg.selectAll('*').remove();
-
-        console.log(links)
 
         svg.append('defs')
             .selectAll('marker')
