@@ -1,37 +1,77 @@
 'use client';
 
 import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import WhaleLink from "../_components/WhaleLink/WhaleLink";
 import NetworkGraph from "../_components/NetworkGraph/NetworkGraph";
 import { Link } from '@/app/types/link';
 import { Whale } from '@/app/types/whale';
-import './whales.css'
+import './whales.css';
 
 export default function Whales() {
-    const API_BASE = 'http://127.0.0.1:5001';
-
     const [whales, setWhales] = useState<Whale[]>([]);
     const [links, setLinks] = useState<Link[]>([]);
-    const [activeStatus, setActiveStatus] = useState('');
-    const [activePod, setActivePod] = useState('');
     const [loading, setLoading] = useState(true);
 
-    const data = {
-        whales,
-        links
+    const API_BASE = 'http://127.0.0.1:5001';
+
+    const router = useRouter();
+    const searchParams = useSearchParams();
+
+    const activeStatus = searchParams.get('status') || 'all';
+    const activePods = searchParams.getAll('pod');
+
+    /*
+     * updates the active status search parameter.
+     */
+    function setStatus(newStatus : string) {
+        const params = new URLSearchParams(searchParams);
+
+        if (newStatus === 'all') {
+            params.delete('status');
+        } else {
+            params.set('status', newStatus);
+        }
+
+        router.push(`/whales?${params.toString()}`);
     }
 
-    function handleActiveStatusUpdate(status : string) {
-        setActiveStatus(status);
+    /*
+     * pushes or deletes pods to the search parameter
+     */
+    function togglePod(pod : string) {
+        const params = new URLSearchParams(searchParams);
+        const currentPods = params.getAll('pod');
+
+        if (pod === 'all') {
+            params.delete('pod');
+        } else if (currentPods.includes(pod)) {
+            params.delete('pod');
+            currentPods.filter(p => p !== pod).forEach(p => params.append('pod', p));
+        } else if (!currentPods.includes(pod) && currentPods.length == 2) {
+            params.delete('pod');
+        } else {
+            params.append('pod', pod);
+        }
+
+        router.push(`/whales?${params.toString()}`);
     }
 
-    function handleActivePodUpdate(pod : string) {
-        setActivePod(pod);
+    /*
+     * helper function to parse active status and active pods
+     * to api path.
+     */
+    function createApiPath() {
+        const status = activeStatus === 'all' ? '' : '/' + activeStatus;
+
+        const pods = activePods.length === 3 ? "" : activePods.length > 0 ? '/pod' + activePods.map(p => '/' + p).join('') : '';
+
+        return `${status}${pods}`;
     }
 
     useEffect(() => {
         async function fetchData() {
-            const path = `${activeStatus}${activePod}`;
+            const path = createApiPath();
 
             const whalesRes = await fetch(`${API_BASE}/whales${path}`);
             setWhales(await whalesRes.json());
@@ -45,9 +85,7 @@ export default function Whales() {
         fetchData();
 
 
-    }, [activeStatus, activePod]);
-
-    console.log(loading)
+    }, [activeStatus, activePods.join(',')]);
 
     if (loading) return;
 
@@ -56,35 +94,25 @@ export default function Whales() {
             <div>
                 <div>Status</div>
                 <ul>
-                    <li onClick={() => handleActiveStatusUpdate("")}>All</li>
-                    <li onClick={() => handleActiveStatusUpdate("/living")}>Living</li>
-                    <li onClick={() => handleActiveStatusUpdate("/deceased")}>Deceased</li>
+                    <li onClick={() => setStatus("all")}>All</li>
+                    <li onClick={() => setStatus("living")}>Living</li>
+                    <li onClick={() => setStatus("deceased")}>Deceased</li>
                 </ul>
 
                 <div>Pod</div>
                 <ul>
-                    <li onClick={() => handleActivePodUpdate("")}>All</li>
-                    <li onClick={() => handleActivePodUpdate("/pod/j")}>J Pod</li>
-                    <li onClick={() => handleActivePodUpdate("/pod/k")}>K Pod</li>
-                    <li onClick={() => handleActivePodUpdate("/pod/l")}>L Pod</li>
+                    <li onClick={() => togglePod("all")}>All</li>
+                    <li onClick={() => togglePod("j")}>J Pod</li>
+                    <li onClick={() => togglePod("k")}>K Pod</li>
+                    <li onClick={() => togglePod("l")}>L Pod</li>
                 </ul>
             </div>
 
             <div>
                 <h2>Whales</h2>
                 <div className="network-container">
-                    <NetworkGraph data={data} />
+                   <NetworkGraph data={{ whales, links }} />
                 </div>
-{/*                <ul>
-                    {
-                        whales.map((whale, i) => (
-                            <li key={i}>
-                                <WhaleLink whale={whale}/>
-                            </li>
-                        ))
-                    }
-                </ul>
-*/}
             </div>
         </div>
     )
