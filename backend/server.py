@@ -37,7 +37,7 @@ def get_whale(whale_id):
 
     if not whale:
         return jsonify({"error": f"No whale found with id: {whale_id}"}), 404
-    
+
     whale = {
         'whale_id': whale[0],
         'name': whale[1],
@@ -111,11 +111,47 @@ def get_network_nodes():
     nodes = ns.jsonify_whales()
     return nodes
 
+
 # get all edges
-@app.route('/network-edges', methods=['GET'])
+@app.route('/network/edges', methods=['GET'])
 def get_network_edges():
-    edges = ns.jsonify_edge_list()
-    return edges
+    edges = fetch_process(db.fetch_all_edges)
+    return jsonify_edges(edges)
+
+
+# get all living edges
+@app.route('/network/edges/living', methods=['GET'])
+def get_network_living_edges():
+    edges = fetch_process(db.fetch_living_edges)
+    return jsonify_edges(edges)
+
+
+# get all deceased edges
+@app.route('/network/edges/deceased', methods=['GET'])
+def get_network_deceased_edges():
+    edges = fetch_process(db.fetch_deceased_edges)
+    return jsonify_edges(edges)
+
+
+# fetch edges for specific pod
+@app.route('/network/edges/pod/<pod_id>', methods=['GET'])
+def get_network_pod_edges(pod_id):
+    edges = fetch_process(db.fetch_pod_edges, pod_id.upper())
+    return jsonify_edges(edges)
+
+
+# fetch living pod edges
+@app.route('/network/edges/living/pod/<pod_id>', methods=['GET'])
+def get_network_living_pod_edges(pod_id):
+    edges = fetch_process(db.fetch_living_pod_edges, pod_id.upper())
+    return jsonify_edges(edges)
+
+
+# fetch deceased pod edges
+@app.route('/network/edges/deceased/pod/<pod_id>', methods=['GET'])
+def get_network_deceased_pod_edges(pod_id):
+    edges = fetch_process(db.fetch_deceased_pod_edges, pod_id.upper())
+    return jsonify_edges(edges)
 
 
 # helper function to streamline fetch process
@@ -152,6 +188,16 @@ def jsonify_whales(response):
 
     return jsonify(whale_list)
 
+def jsonify_edges(response):
+    if response is None:
+        return jsonify({"error": "No items found."}), 404
+
+    edge_list = [{
+        'source': edges[0],
+        'target': edges[1]
+    } for edges in response]
+
+    return jsonify(edge_list)
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
