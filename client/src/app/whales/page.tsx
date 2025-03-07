@@ -31,10 +31,12 @@ export default function Whales() {
 
     useEffect(() => {
         async function fetchData() {
-            const whalesRes = await fetch(`${API_BASE}/whales${activeStatus}${activePod}`);
+            const path = `${activeStatus}${activePod}`;
+
+            const whalesRes = await fetch(`${API_BASE}/whales${path}`);
             setWhales(await whalesRes.json());
 
-            const linksRes = await fetch(`${API_BASE}/network-edges`);
+            const linksRes = await fetch(`${API_BASE}/network/edges${path}`);
             setLinks(await linksRes.json());
 
             setLoading(false);
