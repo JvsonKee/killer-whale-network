@@ -12,7 +12,7 @@ interface NetworkGraphProps {
 }
 
 export default function NetworkGraph({ data } : NetworkGraphProps) {
-    const filter : string = 'pod';
+    const filter : string = 'gender';
     const svgRef = useRef<SVGSVGElement>(null);
 
     const genderColors = d3.scaleOrdinal<string>()
@@ -51,7 +51,7 @@ export default function NetworkGraph({ data } : NetworkGraphProps) {
             .attr('fill', d => {
                 const node = whales.find(whale => whale.whale_id === d.target);
                 return getNodeColor(node, filter);
-            }); // Color of the arrowhead
+            });
 
         const simulation = d3.forceSimulation<Node>(whales)
             .force('link', d3.forceLink<Node, Link>(links).id(d => d.whale_id).distance(50))
@@ -66,7 +66,11 @@ export default function NetworkGraph({ data } : NetworkGraphProps) {
             .selectAll<SVGPathElement, Link>('path')
             .data(links)
             .join('path')
-            .attr('stroke', d => getNodeColor(d.target, filter))
+            .attr('stroke', d => {
+                const targetId = typeof d.target === 'string' ? d.target : d.target.whale_id;
+                const node = whales.find(whale => whale.whale_id === targetId);
+                return getNodeColor(node, filter);
+            })
             .attr('marker-end', (_, i) => `url(#arrowhead-${i})`);
 
         const node = svg.append('g')
@@ -156,9 +160,11 @@ export default function NetworkGraph({ data } : NetworkGraphProps) {
 
     }, [data]);
 
-    function getNodeColor(d : Node, filter : string) { 
+    function getNodeColor(d : Node | undefined, filter : string) {
+        if (!d) return "white";
+
         switch(filter) {
-            case 'gender': 
+            case 'gender':
                 return genderColors(d.gender);
             case 'pod':
                 return podColors(d.pod_id);
