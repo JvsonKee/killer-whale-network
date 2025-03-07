@@ -3,6 +3,7 @@ import * as d3 from 'd3';
 import { Whale } from '@/app/types/whale';
 import { Node } from '@/app/types/node';
 import { Link } from '@/app/types/link';
+import { useRouter } from 'next/navigation';
 
 interface NetworkGraphProps {
     data: {
@@ -16,6 +17,7 @@ export default function NetworkGraph({ data } : NetworkGraphProps) {
     const svgRef = useRef<SVGSVGElement>(null);
     const simulationRef = useRef<d3.Simulation<Node, Link> | null>(null);
 
+    const router = useRouter();
 
     const genderColors = d3.scaleOrdinal<string>()
         .domain(['male', 'female', 'unknown'])
@@ -98,7 +100,11 @@ export default function NetworkGraph({ data } : NetworkGraphProps) {
             .attr('fill-opacity', 0.7)
             .attr('stroke', d => getNodeColor(d, filter))
             .attr('stroke-width', 3)
-            .attr('opacity', d => d.death_year ? 0.3 : 1);
+            .attr('opacity', d => d.death_year ? 0.3 : 1)
+            .style('cursor', 'pointer')
+            .on('click', (_, d) => {
+                router.push(`/whales/${d.whale_id}`)
+            });
 
         nodeGroup.append('text')
             .text(d => d.whale_id)
