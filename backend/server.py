@@ -54,14 +54,14 @@ def get_whale(whale_id):
 # gets all living whales
 @app.route('/whales/living', methods=['GET'])
 def get_living_whales():
-    whales = fetch_process(db.fetch_living)
+    whales = fetch_process(db.fetch_whales_by_status, True)
     return jsonify_whales(whales)
 
 
 # gets all deceased whales
 @app.route('/whales/deceased', methods=['GET'])
 def get_deceased_whales():
-    whales = fetch_process(db.fetch_deceased)
+    whales = fetch_process(db.fetch_whales_by_status, False)
     return jsonify_whales(whales)
 
 
@@ -72,17 +72,43 @@ def get_whales_from_pod(pod_id):
     return jsonify_whales(whales)
 
 
+# get whales from a pod pairing
+@app.route('/whales/pod/<f_pod_id>/<s_pod_id>', methods=['GET'])
+def get_pod_pair_all(f_pod_id, s_pod_id):
+    args = {'f_pod_id': f_pod_id.upper(), 's_pod_id': s_pod_id.upper()}
+    whales = fetch_process(db.fetch_pod_pair_all, args)
+    return jsonify_whales(whales)
+
+
+# get alive whales from a pod pairing
+@app.route('/whales/living/pod/<f_pod_id>/<s_pod_id>', methods=['GET'])
+def get_pod_pair_alive(f_pod_id, s_pod_id):
+    args = {'f_pod_id': f_pod_id.upper(), 's_pod_id': s_pod_id.upper(), 'status': True}
+    whales = fetch_process(db.fetch_pod_pair_by_status, args)
+    return jsonify_whales(whales)
+
+
+# get deceased whales from a pod pairing
+@app.route('/whales/deceased/pod/<f_pod_id>/<s_pod_id>', methods=['GET'])
+def get_pod_pair_deceased(f_pod_id, s_pod_id):
+    args = {'f_pod_id': f_pod_id.upper(), 's_pod_id': s_pod_id.upper(), 'status': False}
+    whales = fetch_process(db.fetch_pod_pair_by_status, args)
+    return jsonify_whales(whales)
+
+
 # gets all living whales from a pod
 @app.route('/whales/living/pod/<pod_id>', methods=['GET'])
 def get_living_from_pod(pod_id):
-    whales = fetch_process(db.fetch_living_from_pod, pod_id.upper())
+    args = {'pod_id': pod_id.upper(), 'status': True}
+    whales = fetch_process(db.fetch_pod_by_status, args)
     return jsonify_whales(whales)
 
 
 # gets all deceased whales from a pod
 @app.route('/whales/deceased/pod/<pod_id>', methods=['GET'])
 def get_deceased_from_pod(pod_id):
-    whales = fetch_process(db.fetch_deceased_from_pod, pod_id.upper())
+    args = {'pod_id': pod_id.upper(), 'status': False}
+    whales = fetch_process(db.fetch_pod_by_status, args)
     return jsonify_whales(whales)
 
 
@@ -122,14 +148,14 @@ def get_network_edges():
 # get all living edges
 @app.route('/network/edges/living', methods=['GET'])
 def get_network_living_edges():
-    edges = fetch_process(db.fetch_living_edges)
+    edges = fetch_process(db.fetch_edges_by_status, True)
     return jsonify_edges(edges)
 
 
 # get all deceased edges
 @app.route('/network/edges/deceased', methods=['GET'])
 def get_network_deceased_edges():
-    edges = fetch_process(db.fetch_deceased_edges)
+    edges = fetch_process(db.fetch_edges_by_status, False)
     return jsonify_edges(edges)
 
 
@@ -143,14 +169,40 @@ def get_network_pod_edges(pod_id):
 # fetch living pod edges
 @app.route('/network/edges/living/pod/<pod_id>', methods=['GET'])
 def get_network_living_pod_edges(pod_id):
-    edges = fetch_process(db.fetch_living_pod_edges, pod_id.upper())
+    args = {'pod_id': pod_id.upper(), 'status': True}
+    edges = fetch_process(db.fetch_pod_edges_by_status, args)
     return jsonify_edges(edges)
 
 
 # fetch deceased pod edges
 @app.route('/network/edges/deceased/pod/<pod_id>', methods=['GET'])
 def get_network_deceased_pod_edges(pod_id):
-    edges = fetch_process(db.fetch_deceased_pod_edges, pod_id.upper())
+    args = {'pod_id': pod_id.upper(), 'status': False}
+    edges = fetch_process(db.fetch_pod_edges_by_status, args)
+    return jsonify_edges(edges)
+
+
+# fetch all edges for a pod pairing
+@app.route('/network/edges/pod/<f_pod_id>/<s_pod_id>', methods=['GET'])
+def get_pod_pair_edges(f_pod_id, s_pod_id):
+    args = {'f_pod_id': f_pod_id.upper(), 's_pod_id': s_pod_id.upper()}
+    edges = fetch_process(db.fetch_pod_pair_edges_all, args)
+    return jsonify_edges(edges)
+
+
+# fetch edges for living pod pairing
+@app.route('/network/edges/living/pod/<f_pod_id>/<s_pod_id>', methods=['GET'])
+def get_living_pod_pair_edges(f_pod_id, s_pod_id):
+    args = {'f_pod_id': f_pod_id.upper(), 's_pod_id': s_pod_id.upper(), 'status': True}
+    edges = fetch_process(db.fetch_pod_pair_edges_by_status, args)
+    return jsonify_edges(edges)
+
+
+# fetch edges for deceased pod pairing
+@app.route('/network/edges/deceased/pod/<f_pod_id>/<s_pod_id>', methods=['GET'])
+def get_deceased_pod_pair_edges(f_pod_id, s_pod_id):
+    args = {'f_pod_id': f_pod_id.upper(), 's_pod_id': s_pod_id.upper(), 'status': False}
+    edges = fetch_process(db.fetch_pod_pair_edges_by_status, args)
     return jsonify_edges(edges)
 
 
@@ -188,6 +240,7 @@ def jsonify_whales(response):
 
     return jsonify(whale_list)
 
+# helper function to jsonify edges array
 def jsonify_edges(response):
     if response is None:
         return jsonify({"error": "No items found."}), 404

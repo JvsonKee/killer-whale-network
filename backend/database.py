@@ -15,9 +15,11 @@ DB_CONFIG = {
 def connect():
    return psycopg2.connect(**DB_CONFIG)
 
+
 def close(conn, cur):
     cur.close()
     conn.close()
+
 
 def reset_db(cur):
     # drop tables
@@ -47,12 +49,14 @@ def reset_db(cur):
                 );
             """)
 
+
 def insert_pod(cur, pod):
     query = """
                 INSERT INTO pod (pod_id, name) VALUES (%s, %s) ON CONFLICT (pod_id) DO NOTHING;
             """
 
     cur.execute(query, pod)
+
 
 def insert_whale(cur, whale):
     query = """
@@ -61,6 +65,7 @@ def insert_whale(cur, whale):
             """
 
     cur.execute(query, whale)
+
 
 def update_whale(cur, whale):
     query = """ 
@@ -71,9 +76,11 @@ def update_whale(cur, whale):
 
     cur.execute(query, whale)
 
+
 def fetch_whales(cur):
     cur.execute("SELECT * FROM whale ORDER BY birth_year ASC;")
     return cur.fetchall()
+
 
 def fetch_whale(cur, whale_id):
     query = "SELECT * FROM whale WHERE whale_id = %s;"
@@ -81,42 +88,60 @@ def fetch_whale(cur, whale_id):
     return cur.fetchone()
 
 
+def fetch_whales_by_status(cur, is_alive):
+    status_condition = "IS NULL" if is_alive else "IS NOT NULL"
+
+    query = f"""
+                SELECT * FROM whale WHERE death_year {status_condition};
+            """
+    cur.execute(query)
+    return cur.fetchall()
+
+
 def fetch_pods(cur):
     cur.execute("SELECT * FROM pod;")
     return cur.fetchall()
+
 
 def fetch_whales_from_pod(cur, pod_id):
     query = "SELECT * FROM whale WHERE pod_id = %s ORDER BY birth_year ASC"
     cur.execute(query, (pod_id,))
     return cur.fetchall()
 
-def fetch_living(cur):
-    cur.execute("SELECT * FROM whale WHERE death_year IS NULL;")
-    return cur.fetchall()
 
-def fetch_deceased(cur):
-    cur.execute("SELECT * FROM whale WHERE death_year IS NOT NULL;")
-    return cur.fetchall()
+def fetch_pod_by_status(cur, data):
+    status_condition = "IS NULL" if data['status'] else "IS NOT NULL"
 
-def fetch_living_from_pod(cur, pod_id):
-    query = """
-                SELECT * 
-                FROM whale 
-                WHERE death_year IS NULL AND pod_id = %s;
+    query = f"""
+                SELECT * FROM whale WHERE pod_id = %s and death_year {status_condition};
             """
 
-    cur.execute(query, (pod_id,))
+    cur.execute(query, data['pod_id'])
     return cur.fetchall()
 
-def fetch_deceased_from_pod(cur, pod_id):
+
+def fetch_pod_pair_all(cur, data):
     query = """
                 SELECT * 
-                FROM whale 
-                WHERE death_year IS NOT NULL AND pod_id = %s;
+                FROM whale
+                WHERE pod_id IN (%s, %s);
             """
-
-    cur.execute(query, (pod_id,))
+    cur.execute(query, (data['f_pod_id'], data['s_pod_id']))
     return cur.fetchall()
+
+
+def fetch_pod_pair_by_status(cur, data):
+    status_condition = "IS NULL" if data['status'] else "IS NOT NULL"
+
+    query = f"""
+                SELECT * 
+                FROM whale
+                WHERE pod_id IN (%s, %s)
+                    AND death_year {status_condition};
+            """
+    cur.execute(query, (data['f_pod_id'], data['s_pod_id']))
+    return cur.fetchall()
+
 
 def fetch_mothers(cur):
     query =  """
@@ -131,6 +156,7 @@ def fetch_mothers(cur):
     cur.execute(query)
     return cur.fetchall()
 
+
 def fetch_all_parents(cur):
     query = """
                 SELECT * 
@@ -144,6 +170,7 @@ def fetch_all_parents(cur):
 
     cur.execute(query)
     return cur.fetchall()
+
 
 def fetch_ancestors(cur, whale_id):
     query = """
@@ -163,6 +190,7 @@ def fetch_ancestors(cur, whale_id):
     cur.execute(query, (whale_id,))
     return cur.fetchall()
 
+
 def fetch_parent_pairs(cur):
     query = """
                 SELECT mother_id, father_id
@@ -173,6 +201,7 @@ def fetch_parent_pairs(cur):
     cur.execute(query)
     return cur.fetchall()
 
+
 def fetch_children(cur, parent_id):
     query = """
                 SELECT *
@@ -182,6 +211,7 @@ def fetch_children(cur, parent_id):
 
     cur.execute(query, (parent_id,))
     return cur.fetchall()
+
 
 def fetch_decendants(cur, whale_id):
     query = """
@@ -201,6 +231,7 @@ def fetch_decendants(cur, whale_id):
     cur.execute(query, (whale_id,))
     return cur.fetchall()
 
+
 def fetch_all_edges(cur):
     query = """
                 SELECT mother_id AS source, whale_id AS target
@@ -212,6 +243,28 @@ def fetch_all_edges(cur):
                 SELECT father_id AS source, whale_id AS target
                 FROM whale
                 WHERE father_id IS NOT NULL;
+            """
+
+    cur.execute(query)
+    return cur.fetchall()
+
+def fetch_edges_by_status(cur, is_alive):
+    status_condition = "IS NULL" if is_alive else "IS NOT NULL"
+
+    query = f"""
+                SELECT m.mother_id AS source, m.whale_id AS target
+                FROM whale m
+                JOIN whale mother ON m.mother_id = mother.whale_id
+                WHERE m.death_year {status_condition}
+                  AND mother.death_year {status_condition}
+
+                UNION ALL
+
+                SELECT f.father_id AS source, f.whale_id AS target
+                FROM whale f
+                JOIN whale father ON f.father_id = father.whale_id
+                WHERE f.death_year {status_condition}
+                  AND father.death_year {status_condition};
             """
 
     cur.execute(query)
@@ -275,15 +328,16 @@ def fetch_pod_edges(cur, pod_id):
     cur.execute(query, (pod_id, pod_id, pod_id, pod_id))
     return cur.fetchall()
 
-def fetch_living_pod_edges(cur, pod_id):
-    query = """
+def fetch_pod_edges_by_status(cur, data):
+    status_condition = "IS NULL" if data['status'] else "IS NOT NULL"
+    query = f"""
                 SELECT m.mother_id AS source, m.whale_id AS target
                 FROM whale m
                 JOIN whale mother ON m.mother_id = mother.whale_id
                 WHERE m.pod_id = %s
                     AND mother.pod_id = %s
-                    AND mother.death_year IS NULL
-                    AND m.death_year IS NULL
+                    AND mother.death_year {status_condition}
+                    AND m.death_year {status_condition}
 
                 UNION ALL
 
@@ -292,10 +346,11 @@ def fetch_living_pod_edges(cur, pod_id):
                 JOIN whale father ON f.father_id = father.whale_id
                 WHERE f.pod_id = %s
                     AND father.pod_id = %s
-                    AND father.death_year IS NULL
-                    AND f.death_year IS NULL; 
+                    AND father.death_year {status_condition}
+                    AND f.death_year {status_condition};
             """
 
+    pod_id = data['pod_id']
     cur.execute(query, (pod_id, pod_id, pod_id, pod_id))
     return cur.fetchall()
 
@@ -320,4 +375,54 @@ def fetch_deceased_pod_edges(cur, pod_id):
                     AND f.death_year IS NOT NULL;
             """
     cur.execute(query, (pod_id, pod_id, pod_id, pod_id))
+    return cur.fetchall()
+
+def fetch_pod_pair_edges_by_status(cur, data):
+    status_condition = "IS NULL" if data['status'] else "IS NOT NULL"
+
+    query = f"""
+                SELECT m.mother_id AS source, m.whale_id AS target
+                FROM whale m
+                JOIN whale mother ON m.mother_id = mother.whale_id
+                WHERE m.pod_id IN (%s, %s)
+                  AND mother.pod_id IN (%s, %s)
+                  AND m.death_year {status_condition}
+                  AND mother.death_year {status_condition}
+
+                UNION ALL
+
+                SELECT f.father_id AS source, f.whale_id AS target
+                FROM whale f
+                JOIN whale father ON f.father_id = father.whale_id
+                WHERE f.pod_id IN (%s, %s)
+                  AND father.pod_id IN (%s, %s)
+                  AND f.death_year {status_condition}
+                  AND father.death_year {status_condition};
+            """
+    f_pod = data['f_pod_id']
+    s_pod = data['s_pod_id']
+
+    cur.execute(query, (f_pod, s_pod, f_pod, s_pod, f_pod, s_pod, f_pod, s_pod))
+    return cur.fetchall()
+
+def fetch_pod_pair_edges_all(cur, data):
+    query = """
+                SELECT m.mother_id AS source, m.whale_id AS target
+                FROM whale m
+                JOIN whale mother ON m.mother_id = mother.whale_id
+                WHERE m.pod_id IN (%s, %s)
+                  AND mother.pod_id IN (%s, %s)
+
+                UNION ALL
+
+                SELECT f.father_id AS source, f.whale_id AS target
+                FROM whale f
+                JOIN whale father ON f.father_id = father.whale_id
+                WHERE f.pod_id IN (%s, %s)
+                  AND father.pod_id IN (%s, %s);
+            """
+    f_pod = data['f_pod_id']
+    s_pod = data['s_pod_id']
+
+    cur.execute(query, (f_pod, s_pod, f_pod, s_pod, f_pod, s_pod, f_pod, s_pod))
     return cur.fetchall()
