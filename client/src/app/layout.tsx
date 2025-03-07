@@ -1,4 +1,5 @@
 import NavBar from "./_components/NavBar/NavBar"
+import './globals.css';
 
 export const metadata = {
   title: 'SRKW',
