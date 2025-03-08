@@ -18,7 +18,7 @@ def parseParents(whale):
         print("|")
         print("V")
         print(f"{mother[0]} {mother[1]}")
-    
+
     if father is not None:
         parseParents(father)
         print("|")
@@ -28,7 +28,7 @@ def parseParents(whale):
 
 def parseChildren(whale_id, depth):
     children = db.fetch_children(cur, whale_id)
-    
+
     if len(children) == 0: return
 
     for child in children:

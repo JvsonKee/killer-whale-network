@@ -6,14 +6,14 @@ from selenium.webdriver.common.action_chains import ActionChains
 
 def initialize_ids_and_names(driver, n, cur):
     sections_len = len(driver.find_elements(By.XPATH, '//*[@id="mw-content-text"]/div[3]/div'))
-    
+
     pod_indices = []
     pod_counts = []
 
     # insert relevant pods into db and get their indices for scraping
     for i in range(1, sections_len + 1):
         curr_letter = driver.find_element(By.XPATH, f'//*[@id="mw-content-text"]/div[3]/div[{i}]/div').text
-        
+
         if curr_letter == 'J' or curr_letter == 'K' or curr_letter == 'L':
             pod = (curr_letter, f'{curr_letter} Pod')
             insert_pod(cur, pod)
@@ -25,9 +25,9 @@ def initialize_ids_and_names(driver, n, cur):
     for i in range(len(pod_indices)):
         for j in range(1, pod_counts[i]):
             id_and_name = driver.find_element(By.XPATH, f'//*[@id="mw-content-text"]/div[3]/div[{pod_indices[i]}]/ul/li[{j}]/a').text
-            
+
             parts = id_and_name.split(" ", 1)
-            
+
             whale_id = parts[0]
             whale = None
             pod = whale_id[0]
@@ -40,7 +40,7 @@ def initialize_ids_and_names(driver, n, cur):
             else:
                 name = parts[1]
                 whale = (whale_id, name, None, None, None, None, None, pod)
-            
+
             insert_whale(cur, whale)
 
     # navigate to deceased page and parse whale data
@@ -50,7 +50,7 @@ def initialize_ids_and_names(driver, n, cur):
             initialize_ids_and_names(driver, n - 1, cur)
         except NoSuchElementException:
             return
-        
+
 
 # menu navigation function
 # index = 1: living
@@ -77,13 +77,13 @@ def scrape_whales(driver, cur, whales):
             path = f'{whale["whale_id"]}'
 
         driver.get(f'https://killerwhales.fandom.com/wiki/{path}')
-        
+
         scrape_whale(driver, cur, whale_id)
 
 
 def scrape_whale(driver, cur, whale_id):
     gender, birth_year, death_year, mother_id, father_id = (None, None, None, None, None)
-    
+
     gender = scrape_gender(driver)
     birth_year = scrape_birth_year(driver)
     death_year = scrape_death_year(driver)
@@ -91,7 +91,7 @@ def scrape_whale(driver, cur, whale_id):
     father_id = scrape_father_id(driver)
 
     whale = (gender, birth_year, death_year, mother_id, father_id, whale_id)
-    
+
     update_whale(cur, whale)
 
 
@@ -109,12 +109,12 @@ def scrape_gender(driver):
 
             if gender in {"unknown", "male", "female"}:
                 return gender
-            
+
         except NoSuchElementException:
             continue
 
     return None
-        
+
 
 def scrape_birth_year(driver):
     birth_sources = [
@@ -130,10 +130,10 @@ def scrape_birth_year(driver):
 
             if isinstance(birth_year, int):
                 return birth_year
-            
+
         except NoSuchElementException:
             continue
-    
+
     return None
 
 
@@ -144,7 +144,7 @@ def scrape_death_year(driver):
         '//*[@id="mw-content-text"]/div/aside/div[9]',
         '//*[@id="mw-content-text"]/div/aside/div[5]',
     ]
-    
+
     death_year = None
 
     for source in death_sources:
@@ -160,7 +160,7 @@ def scrape_death_year(driver):
 
         except NoSuchElementException:
             continue
-    
+
     return None
 
 
