@@ -14,4 +14,5 @@
 
 body {
     @apply text-white bg-black font-inter font-light;
+    overflow-x: hidden;
 }
