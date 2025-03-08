@@ -46,7 +46,7 @@ export default function Home() {
                 alt="Left orca right"
                 className="absolute -top-20 -right-13 w-75"
             />
-            <div className="flex flex-col justify-end mx-auto mb-50 w-[68%] h-[80vh]">
+            <div className="flex flex-col justify-end mx-auto mb-40 w-[68%] h-[80vh]">
                 <h1 className="mb-10 text-[110px]/30 font-bold">Resident Connections</h1>
                 <div className="w-[67%]">
                     <p className="text-body">
