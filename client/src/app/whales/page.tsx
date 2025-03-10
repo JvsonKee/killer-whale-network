@@ -117,10 +117,8 @@ export default function Whales() {
                 }
             </div>
 
-            <div>
-                <div className="network-container">
-                   <NetworkGraph data={{ whales, links }} />
-                </div>
+            <div className="flex align-center justify-center w-full">
+               <NetworkGraph data={{ whales, links }} />
             </div>
         </div>
     )
