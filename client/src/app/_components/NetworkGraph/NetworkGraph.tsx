@@ -47,8 +47,6 @@ export default function NetworkGraph({ data } : NetworkGraphProps) {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    console.log({dimensions})
-
     useEffect(() => {
         if (simulationRef.current) {
             simulationRef.current.stop();
