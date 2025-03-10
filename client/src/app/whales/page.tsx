@@ -17,6 +17,10 @@ const filterData = [
     {
         label: 'Pod',
         filters: ['All', 'J', 'K', 'L'],
+    },
+    {
+        label: 'Colour By',
+        filters: ['Gender', 'Pod']
     }
 ]
 
@@ -32,11 +36,12 @@ export default function Whales() {
 
     const activeStatus = searchParams.get('status') || 'all';
     const activePods = searchParams.getAll('pod');
+    const activeColour = searchParams.get('colour') || 'gender';
 
     /*
      * updates the active status search parameter.
      */
-    function setStatus(newStatus : string) {
+    function toggleStatus(newStatus : string) {
         const params = new URLSearchParams(searchParams);
 
         if (newStatus === 'all') {
@@ -65,6 +70,14 @@ export default function Whales() {
         } else {
             params.append('pod', pod);
         }
+
+        router.push(`/whales?${params.toString()}`, { scroll: false });
+    }
+
+    function toggleColour(colour : string) {
+        const params = new URLSearchParams(searchParams);
+
+            params.set('colour', colour)
 
         router.push(`/whales?${params.toString()}`, { scroll: false });
     }
@@ -104,13 +117,13 @@ export default function Whales() {
     return (
         <div className="w-full">
             <h1 className="w-[85%] mx-auto text-sub/23 font-bold">Meet the Residents</h1>
-            <div className="flex justify-between w-[85%] mx-auto">
+            <div className="flex gap-20 w-[85%] mx-auto">
                 {
                     filterData.map((data) => (
                         <GraphFilter
                             filterData={data}
-                            activeFilters={data.label === 'Status' ? [activeStatus] : activePods}
-                            onUpdateActive={data.label === 'Status' ? setStatus : togglePod}
+                            activeFilters={data.label === 'Status' ? [activeStatus] : data.label === 'Pod' ? activePods : [activeColour]}
+                            onUpdateActive={data.label === 'Status' ? toggleStatus : data.label === 'Pod' ? togglePod : toggleColour}
                             key={data.label}
                         />
                     ))
@@ -118,7 +131,7 @@ export default function Whales() {
             </div>
 
             <div className="flex align-center justify-center w-full">
-               <NetworkGraph data={{ whales, links }} />
+               <NetworkGraph data={{ whales, links, activeColour }} />
             </div>
         </div>
     )

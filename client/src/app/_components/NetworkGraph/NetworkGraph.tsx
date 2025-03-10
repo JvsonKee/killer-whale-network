@@ -8,26 +8,27 @@ import { useRouter } from 'next/navigation';
 interface NetworkGraphProps {
     data: {
         whales: Whale[],
-        links: Link[]
+        links: Link[],
+        activeColour: string
     }
 }
 
 export default function NetworkGraph({ data } : NetworkGraphProps) {
     const [dimensions, setDimensions] = useState({width: 800, height: 600});
 
-    const filter : string = 'pod';
+    const filterColour : string = data.activeColour;
     const svgRef = useRef<SVGSVGElement>(null);
     const simulationRef = useRef<d3.Simulation<Node, Link> | null>(null);
 
     const router = useRouter();
 
-    const genderColors = d3.scaleOrdinal<string>()
+    const genderColours = d3.scaleOrdinal<string>()
         .domain(['male', 'female', 'unknown'])
         .range(['#389bff', '#e647ff', '#c6c6c6']);
 
-    const podColors = d3.scaleOrdinal<string>()
+    const podColours = d3.scaleOrdinal<string>()
         .domain(['J', 'K', 'L'])
-        .range(['#cab6ff', '#ffb297', '#addaff'])
+        .range(['#DC9FFF', '#FFAB81', '#ADDAFF'])
 
     useEffect(() => {
         function handleResize() {
@@ -74,19 +75,20 @@ export default function NetworkGraph({ data } : NetworkGraphProps) {
             .attr('refX', 9)
             .attr('refY', 0)
             .attr('orient', 'auto')
-            .attr('markerWidth', manyNodes ? 6 : 4)
-            .attr('markerHeight', manyNodes ? 8 : 6)
+            .attr('markerWidth', manyNodes ? 5 : 4)
+            .attr('markerHeight', manyNodes ? 7 : 6)
             .append('path')
             .attr('d', 'M0,-5L10,0L0,5')
             .attr('fill', d => {
                 const node = whales.find(whale => whale.whale_id === d.target);
-                return getNodeColor(node, filter);
+                return getNodeColor(node, filterColour);
             });
 
-        const forceStrength = manyNodes ? -75 : -200;
+        const distance = manyNodes ? 43 : 70;
+        const forceStrength = manyNodes ? -80 : -200;
 
         const simulation = d3.forceSimulation<Node>(whales)
-            .force('link', d3.forceLink<Node, Link>(links).id(d => d.whale_id).distance(70))
+            .force('link', d3.forceLink<Node, Link>(links).id(d => d.whale_id).distance(distance))
             .force('charge', d3.forceManyBody().strength(forceStrength))
             .force("x", d3.forceX(width / 2))
             .force("y", d3.forceY(height / 2));
@@ -103,7 +105,7 @@ export default function NetworkGraph({ data } : NetworkGraphProps) {
             .attr('stroke', d => {
                 const targetId = typeof d.target === 'string' ? d.target : d.target.whale_id;
                 const node = whales.find(whale => whale.whale_id === targetId);
-                return getNodeColor(node, filter);
+                return getNodeColor(node, filterColour);
             })
             .attr('marker-end', (_, i) => `url(#arrowhead-${i})`);
 
@@ -115,9 +117,9 @@ export default function NetworkGraph({ data } : NetworkGraphProps) {
 
         nodeGroup.append('circle')
             .attr('r', manyNodes ? 9 : 15)
-            .attr('fill', d => getNodeColor(d, filter))
+            .attr('fill', d => getNodeColor(d, filterColour))
             .attr('fill-opacity', 0.7)
-            .attr('stroke', d => getNodeColor(d, filter))
+            .attr('stroke', d => getNodeColor(d, filterColour))
             .attr('stroke-width', 3)
             .attr('opacity', d => d.death_year ? 0.3 : 1)
             .style('cursor', 'pointer')
@@ -133,7 +135,7 @@ export default function NetworkGraph({ data } : NetworkGraphProps) {
             .attr('dy', 2.5)
             .style('pointer-events', 'none');
 
-        if (whales.length < 120) {
+        if (!manyNodes) {
             nodeGroup.append('text')
                 .text(d => d.name)
                 .attr('font-size', 10)
@@ -175,7 +177,7 @@ export default function NetworkGraph({ data } : NetworkGraphProps) {
             link.attr('stroke', d => {
                     const targetId = typeof d.target === 'string' ? d.target : d.target.whale_id;
                     const node = whales.find(whale => whale.whale_id === targetId);
-                    return getNodeColor(node, filter);
+                    return getNodeColor(node, filterColour);
             });
 
             link.attr('marker-end', (_, i) => `url(#arrowhead-${i})`);
@@ -183,7 +185,7 @@ export default function NetworkGraph({ data } : NetworkGraphProps) {
                 .attr('fill', d => {
                     const targetId = typeof d.target === 'string' ? d.target : d.target.whale_id;
                     const node = whales.find(whale => whale.whale_id === targetId);
-                    return getNodeColor(node, filter);
+                    return getNodeColor(node, filterColour);
                 });
 
             nodeGroup.attr('transform', d => `translate(${(d as Node).x},${(d as Node).y})`);
@@ -220,9 +222,9 @@ export default function NetworkGraph({ data } : NetworkGraphProps) {
 
         switch(filter) {
             case 'gender':
-                return genderColors(d.gender);
+                return genderColours(d.gender);
             case 'pod':
-                return podColors(d.pod_id);
+                return podColours(d.pod_id);
             default:
                 return "white";
         }
