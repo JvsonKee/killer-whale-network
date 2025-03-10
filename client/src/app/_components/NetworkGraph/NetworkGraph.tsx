@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
 import { Whale } from '@/app/types/whale';
 import { Node } from '@/app/types/node';
@@ -13,6 +13,8 @@ interface NetworkGraphProps {
 }
 
 export default function NetworkGraph({ data } : NetworkGraphProps) {
+    const [dimensions, setDimensions] = useState({width: 800, height: 600});
+
     const filter : string = 'pod';
     const svgRef = useRef<SVGSVGElement>(null);
     const simulationRef = useRef<d3.Simulation<Node, Link> | null>(null);
@@ -28,6 +30,26 @@ export default function NetworkGraph({ data } : NetworkGraphProps) {
         .range(['#cab6ff', '#ffb297', '#addaff'])
 
     useEffect(() => {
+        function handleResize() {
+            const container = svgRef.current?.parentElement;
+
+            if (container) {
+                setDimensions({
+                    width: container.clientWidth,
+                    height: window.innerHeight * 0.95
+                });
+            }
+        }
+
+        handleResize();
+        window.addEventListener('resize', handleResize);
+
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    console.log({dimensions})
+
+    useEffect(() => {
         if (simulationRef.current) {
             simulationRef.current.stop();
         }
@@ -36,8 +58,7 @@ export default function NetworkGraph({ data } : NetworkGraphProps) {
 
         const manyNodes = whales.length > 99;
 
-        const width = 1400;
-        const height = 1000;
+        const { width, height } = dimensions;
 
         const svg = d3
             .select(svgRef.current)
@@ -64,7 +85,7 @@ export default function NetworkGraph({ data } : NetworkGraphProps) {
                 return getNodeColor(node, filter);
             });
 
-        const forceStrength = manyNodes ? -100 : -250;
+        const forceStrength = manyNodes ? -75 : -200;
 
         const simulation = d3.forceSimulation<Node>(whales)
             .force('link', d3.forceLink<Node, Link>(links).id(d => d.whale_id).distance(70))
@@ -79,7 +100,7 @@ export default function NetworkGraph({ data } : NetworkGraphProps) {
             .attr('opacity', 0.6)
             .attr('fill', 'none')
             .selectAll<SVGPathElement, Link>('path')
-            .data(links, d => d.target.whale_id)
+            .data(links, d => {return typeof d.target === 'string' ? d.target : d.target.whale_id})
             .join('path')
             .attr('stroke', d => {
                 const targetId = typeof d.target === 'string' ? d.target : d.target.whale_id;
@@ -153,6 +174,20 @@ export default function NetworkGraph({ data } : NetworkGraphProps) {
                 return `M${gapOffsetX1},${gapOffsetY1} Q${offsetX},${offsetY} ${gapOffsetX2},${gapOffsetY2}`;
             });
 
+            link.attr('stroke', d => {
+                    const targetId = typeof d.target === 'string' ? d.target : d.target.whale_id;
+                    const node = whales.find(whale => whale.whale_id === targetId);
+                    return getNodeColor(node, filter);
+            });
+
+            link.attr('marker-end', (_, i) => `url(#arrowhead-${i})`);
+            svg.selectAll('marker path')
+                .attr('fill', d => {
+                    const targetId = typeof d.target === 'string' ? d.target : d.target.whale_id;
+                    const node = whales.find(whale => whale.whale_id === targetId);
+                    return getNodeColor(node, filter);
+                });
+
             nodeGroup.attr('transform', d => `translate(${(d as Node).x},${(d as Node).y})`);
         });
 
@@ -180,7 +215,7 @@ export default function NetworkGraph({ data } : NetworkGraphProps) {
                 .on('end', dragended);
         }
 
-    }, [data]);
+    }, [data, dimensions]);
 
     function getNodeColor(d : Node | undefined, filter : string) {
         if (!d) return "white";
