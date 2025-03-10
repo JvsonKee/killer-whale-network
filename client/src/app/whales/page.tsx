@@ -7,6 +7,18 @@ import NetworkGraph from "../_components/NetworkGraph/NetworkGraph";
 import { Link } from '@/app/types/link';
 import { Whale } from '@/app/types/whale';
 import './whales.css';
+import GraphFilter from "../_components/GraphFilter/GraphFilter";
+
+const filterData = [
+    {
+        label: 'Status',
+        filters: ['All', 'Living', 'Deceased'],
+    },
+    {
+        label: 'Pod',
+        filters: ['All', 'J', 'K', 'L'],
+    }
+]
 
 export default function Whales() {
     const [whales, setWhales] = useState<Whale[]>([]);
@@ -90,26 +102,22 @@ export default function Whales() {
     if (loading) return;
 
     return (
-        <div>
-            <div>
-                <div>Status</div>
-                <ul>
-                    <li onClick={() => setStatus("all")}>All</li>
-                    <li onClick={() => setStatus("living")}>Living</li>
-                    <li onClick={() => setStatus("deceased")}>Deceased</li>
-                </ul>
-
-                <div>Pod</div>
-                <ul>
-                    <li onClick={() => togglePod("all")}>All</li>
-                    <li onClick={() => togglePod("j")}>J Pod</li>
-                    <li onClick={() => togglePod("k")}>K Pod</li>
-                    <li onClick={() => togglePod("l")}>L Pod</li>
-                </ul>
+        <div className="w-full">
+            <h1 className="w-[85%] mx-auto text-sub/23 font-bold">Meet the Residents</h1>
+            <div className="flex justify-between w-[85%] mx-auto">
+                {
+                    filterData.map((data) => (
+                        <GraphFilter
+                            filterData={data}
+                            activeFilters={data.label === 'Status' ? [activeStatus] : activePods}
+                            onUpdateActive={data.label === 'Status' ? setStatus : togglePod}
+                            key={data.label}
+                        />
+                    ))
+                }
             </div>
 
             <div>
-                <h2>Whales</h2>
                 <div className="network-container">
                    <NetworkGraph data={{ whales, links }} />
                 </div>
