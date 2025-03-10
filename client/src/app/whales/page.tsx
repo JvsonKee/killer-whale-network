@@ -45,7 +45,7 @@ export default function Whales() {
             params.set('status', newStatus);
         }
 
-        router.push(`/whales?${params.toString()}`);
+        router.push(`/whales?${params.toString()}`, { scroll: false });
     }
 
     /*
@@ -66,7 +66,7 @@ export default function Whales() {
             params.append('pod', pod);
         }
 
-        router.push(`/whales?${params.toString()}`);
+        router.push(`/whales?${params.toString()}`, { scroll: false });
     }
 
     /*
