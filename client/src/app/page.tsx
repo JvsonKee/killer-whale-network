@@ -68,10 +68,10 @@ export default function Home() {
                 <div className="flex items-center justify-center gap-[5%]">
                     <div className="w-[50%]">
                         <Image
-                            src='/images/spray.jpg'
+                            src='/images/j32_spray.jpg'
                             alt='J Pod breach.'
-                            width={600}
-                            height={100}
+                            width={3592}
+                            height={2395}
                             className="w-[100%] h-[280px] object-cover mb-2 rounded-xs"
                         />
                         <div className="text-[10px] float-right">
