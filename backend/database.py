@@ -270,45 +270,6 @@ def fetch_edges_by_status(cur, is_alive):
     cur.execute(query)
     return cur.fetchall()
 
-def fetch_living_edges(cur):
-    query = """
-                SELECT m.mother_id AS source, m.whale_id AS target
-                FROM whale m
-                JOIN whale mother ON m.mother_id = mother.whale_id
-                WHERE m.death_year IS NULL
-                  AND mother.death_year IS NULL
-
-                UNION ALL
-
-                SELECT f.father_id AS source, f.whale_id AS target
-                FROM whale f
-                JOIN whale father ON f.father_id = father.whale_id
-                WHERE f.death_year IS NULL
-                  AND father.death_year IS NULL;
-            """
-
-    cur.execute(query)
-    return cur.fetchall()
-
-def fetch_deceased_edges(cur):
-    query = """
-                SELECT m.mother_id AS source, m.whale_id AS target
-                FROM whale m
-                JOIN whale mother ON m.mother_id = mother.whale_id
-                WHERE m.death_year IS NOT NULL
-                  AND mother.death_year IS NOT NULL
-
-                UNION ALL
-
-                SELECT f.father_id AS source, f.whale_id AS target
-                FROM whale f
-                JOIN whale father ON f.father_id = father.whale_id
-                WHERE f.death_year IS NOT NULL
-                  AND father.death_year IS NOT NULL;
-            """
-
-    cur.execute(query)
-    return cur.fetchall()
 
 def fetch_pod_edges(cur, pod_id):
     query = """
@@ -327,6 +288,7 @@ def fetch_pod_edges(cur, pod_id):
 
     cur.execute(query, (pod_id, pod_id, pod_id, pod_id))
     return cur.fetchall()
+
 
 def fetch_pod_edges_by_status(cur, data):
     status_condition = "IS NULL" if data['status'] else "IS NOT NULL"
@@ -354,28 +316,6 @@ def fetch_pod_edges_by_status(cur, data):
     cur.execute(query, (pod_id, pod_id, pod_id, pod_id))
     return cur.fetchall()
 
-def fetch_deceased_pod_edges(cur, pod_id):
-    query = """
-                SELECT m.mother_id AS source, m.whale_id AS target
-                FROM whale m
-                JOIN whale mother ON m.mother_id = mother.whale_id
-                WHERE m.pod_id = %s
-                    AND mother.pod_id = %s
-                    AND mother.death_year IS NOT NULL
-                    AND m.death_year IS NOT NULL
-
-                UNION ALL
-
-                SELECT f.father_id AS source, f.whale_id AS target
-                FROM whale f
-                JOIN whale father ON f.father_id = father.whale_id
-                WHERE f.pod_id = %s
-                    AND father.pod_id = %s
-                    AND father.death_year IS NOT NULL
-                    AND f.death_year IS NOT NULL;
-            """
-    cur.execute(query, (pod_id, pod_id, pod_id, pod_id))
-    return cur.fetchall()
 
 def fetch_pod_pair_edges_by_status(cur, data):
     status_condition = "IS NULL" if data['status'] else "IS NOT NULL"
