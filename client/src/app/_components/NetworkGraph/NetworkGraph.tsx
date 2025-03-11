@@ -1,3 +1,5 @@
+'use client'
+
 import { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
 import { Whale } from '@/app/types/whale';
