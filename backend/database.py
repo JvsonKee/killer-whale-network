@@ -143,6 +143,65 @@ def fetch_pod_pair_by_status(cur, data):
     return cur.fetchall()
 
 
+def fetch_family_of(cur, whale_id):
+    query = """
+                SELECT whale_id, name, gender, death_year, pod_id, NULL AS parent
+                FROM whale
+                WHERE whale_id = (SELECT mother_id FROM whale WHERE whale_id = %s AND mother_id IS NOT NULL)
+
+                UNION
+
+                SELECT whale_id, name, gender, death_year, pod_id, mother_id AS parent
+                FROM whale
+                WHERE whale_id = %s
+
+                UNION
+
+                SELECT whale_id, name, gender, death_year, pod_id, mother_id AS parent
+                FROM whale
+                WHERE mother_id = (SELECT mother_id FROM whale WHERE whale_id = %s)
+
+                UNION
+
+                SELECT whale_id, name, gender, death_year, pod_id,
+                    CASE
+                        WHEN (SELECT gender FROM whale WHERE whale_id = %s) = 'male     ' THEN father_id
+                        ELSE mother_id
+                    END AS parent
+                FROM whale
+                WHERE %s IN (mother_id, father_id);
+            """
+
+    cur.execute(query, (whale_id, whale_id, whale_id, whale_id, whale_id))
+    return cur.fetchall()
+
+
+def fetch_direct_family_of(cur, whale_id):
+    query = """
+                SELECT *
+                FROM whale
+                WHERE whale_id in (
+                    SELECT mother_id FROM whale
+                    WHERE whale_id = %s
+                        UNION
+                    SELECT father_id FROM whale
+                    WHERE whale_id = %s
+                        UNION
+                    SELECT whale_id FROM whale
+                    WHERE mother_id = (SELECT mother_id FROM whale where whale_id = %s)
+                        UNION
+                    SELECT whale_id FROM whale
+                    WHERE father_id = (SELECT father_id FROM whale where whale_id = %s)
+                        UNION
+                    SELECT whale_id FROM whale
+                    WHERE %s in (mother_id, father_id)
+                );
+            """
+
+    cur.execute(query, (whale_id, whale_id, whale_id, whale_id, whale_id))
+    return cur.fetchall()
+
+
 def fetch_mothers(cur):
     query =  """
                 SELECT *
@@ -248,6 +307,7 @@ def fetch_all_edges(cur):
     cur.execute(query)
     return cur.fetchall()
 
+
 def fetch_edges_by_status(cur, is_alive):
     status_condition = "IS NULL" if is_alive else "IS NOT NULL"
 
@@ -345,6 +405,7 @@ def fetch_pod_pair_edges_by_status(cur, data):
     cur.execute(query, (f_pod, s_pod, f_pod, s_pod, f_pod, s_pod, f_pod, s_pod))
     return cur.fetchall()
 
+
 def fetch_pod_pair_edges_all(cur, data):
     query = """
                 SELECT m.mother_id AS source, m.whale_id AS target
@@ -364,5 +425,39 @@ def fetch_pod_pair_edges_all(cur, data):
     f_pod = data['f_pod_id']
     s_pod = data['s_pod_id']
 
+
     cur.execute(query, (f_pod, s_pod, f_pod, s_pod, f_pod, s_pod, f_pod, s_pod))
+    return cur.fetchall()
+
+
+def fetch_family_edges(cur, whale_id):
+    query = """
+                WITH whale_relationships AS (
+                    SELECT whale_id, mother_id, father_id
+                    FROM whale
+                    WHERE whale_id IN (
+                        SELECT mother_id FROM whale WHERE whale_id = %s
+                        UNION
+                        SELECT father_id FROM whale WHERE whale_id = %s
+                        UNION
+                        SELECT whale_id FROM whale WHERE mother_id = (SELECT mother_id FROM whale WHERE whale_id = %s)
+                        UNION
+                        SELECT whale_id FROM whale WHERE father_id = (SELECT father_id FROM whale WHERE whale_id = %s)
+                        UNION
+                        SELECT whale_id FROM whale WHERE %s IN (mother_id, father_id)
+                    )
+                )
+
+                SELECT mother_id AS source, whale_id AS target
+                FROM whale_relationships
+                WHERE mother_id IS NOT NULL
+
+                UNION
+
+                SELECT father_id AS source, whale_id AS target
+                FROM whale_relationships
+                WHERE father_id IS NOT NULL;
+            """
+
+    cur.execute(query, (whale_id, whale_id, whale_id, whale_id, whale_id))
     return cur.fetchall()
