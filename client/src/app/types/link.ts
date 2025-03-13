@@ -1,6 +1,6 @@
-import { Node } from '@/app/types/node';
+import { Node } from "@/app/types/node";
 
 export interface Link {
-	'source': string | Node,
-	'target': string | Node,
+  source: string | Node;
+  target: string | Node;
 }

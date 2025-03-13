@@ -1,4 +1,4 @@
 export interface Pod {
-	pod_id: string,
-	name: string
-};
+  pod_id: string;
+  name: string;
+}
