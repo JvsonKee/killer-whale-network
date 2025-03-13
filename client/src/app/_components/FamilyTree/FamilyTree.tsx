@@ -34,7 +34,7 @@ export default function FamilyTree({ familyData, currentWhale }: FamilyTreeProps
             if (container) {
                 setDimensions({
                     width: container.clientWidth,
-                    height: window.innerHeight * 0.85
+                    height: window.innerHeight * 0.70
                 })
             }
         }
@@ -64,7 +64,7 @@ export default function FamilyTree({ familyData, currentWhale }: FamilyTreeProps
 
         // Create a tidy tree layout
         const treeLayout = d3.tree<Whale>()
-            .nodeSize([manyNodes ? 30 : 45, width / (root.height + 1)]);
+            .nodeSize([manyNodes ? 25 : 45, width / (root.height + 1)]);
 
         const treeData = treeLayout(root);
 
@@ -133,5 +133,5 @@ export default function FamilyTree({ familyData, currentWhale }: FamilyTreeProps
 
     }, [familyData, dimensions, currentWhale, genderColours, router]);
 
-    return <svg className='bg-blue' ref={svgRef}></svg>;
+    return <svg className='' ref={svgRef}></svg>;
 }
