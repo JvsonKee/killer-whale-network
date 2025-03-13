@@ -1,6 +1,12 @@
 import FamilyTree from "@/app/_components/FamilyTree/FamilyTree";
 import type { Whale } from "@/app/types/whale";
 
+interface WhaleProps {
+    params: {
+        whale_id: string;
+    };
+}
+
 async function getWhale(whale_id: string) {
     const URL_BASE = process.env.API_URL_BASE;
 
@@ -19,12 +25,8 @@ async function getFamily(whale_id: string) {
     return await res.json();
 }
 
-export default async function Whale({
-    params,
-}: {
-    params: Promise<{ whale_id: string }>;
-}) {
-    const whale_id = (await params).whale_id;
+export default async function Whale({ params }: WhaleProps) {
+    const whale_id = params.whale_id;
     const whale: Whale = await getWhale(whale_id);
     const familyData = await getFamily(whale_id);
 
