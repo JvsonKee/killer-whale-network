@@ -9,146 +9,146 @@ import "./whales.css";
 import GraphFilter from "../_components/GraphFilter/GraphFilter";
 
 const filterData = [
-    {
-        label: "Status",
-        filters: ["All", "Living", "Deceased"],
-    },
-    {
-        label: "Pod",
-        filters: ["All", "J", "K", "L"],
-    },
-    {
-        label: "Colour By",
-        filters: ["Gender", "Pod"],
-    },
+  {
+    label: "Status",
+    filters: ["All", "Living", "Deceased"],
+  },
+  {
+    label: "Pod",
+    filters: ["All", "J", "K", "L"],
+  },
+  {
+    label: "Colour By",
+    filters: ["Gender", "Pod"],
+  },
 ];
 
 export default function Whales() {
-    const [whales, setWhales] = useState<Whale[]>([]);
-    const [links, setLinks] = useState<Link[]>([]);
-    const [loading, setLoading] = useState(true);
+  const [whales, setWhales] = useState<Whale[]>([]);
+  const [links, setLinks] = useState<Link[]>([]);
+  const [loading, setLoading] = useState(true);
 
-    const API_BASE = "http://127.0.0.1:5001";
+  const API_BASE = "http://127.0.0.1:5001";
 
-    const router = useRouter();
-    const searchParams = useSearchParams();
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-    const activeStatus = searchParams.get("status") || "all";
-    const activePods = searchParams.getAll("pod");
-    const activeColour = searchParams.get("colour") || "gender";
+  const activeStatus = searchParams.get("status") || "all";
+  const activePods = searchParams.getAll("pod");
+  const activeColour = searchParams.get("colour") || "gender";
 
-    /*
-     * updates the active status search parameter.
-     */
-    function toggleStatus(newStatus: string) {
-        const params = new URLSearchParams(searchParams);
+  /*
+   * updates the active status search parameter.
+   */
+  function toggleStatus(newStatus: string) {
+    const params = new URLSearchParams(searchParams);
 
-        if (newStatus === "all") {
-            params.delete("status");
-        } else {
-            params.set("status", newStatus);
-        }
-
-        router.push(`/whales?${params.toString()}`, { scroll: false });
+    if (newStatus === "all") {
+      params.delete("status");
+    } else {
+      params.set("status", newStatus);
     }
 
-    /*
-     * pushes or deletes pods to the search parameter
-     */
-    function togglePod(pod: string) {
-        const params = new URLSearchParams(searchParams);
-        const currentPods = params.getAll("pod");
+    router.push(`/whales?${params.toString()}`, { scroll: false });
+  }
 
-        if (pod === "all") {
-            params.delete("pod");
-        } else if (currentPods.includes(pod)) {
-            params.delete("pod");
-            currentPods
-                .filter((p) => p !== pod)
-                .forEach((p) => params.append("pod", p));
-        } else if (!currentPods.includes(pod) && currentPods.length == 2) {
-            params.delete("pod");
-        } else {
-            params.append("pod", pod);
-        }
+  /*
+   * pushes or deletes pods to the search parameter
+   */
+  function togglePod(pod: string) {
+    const params = new URLSearchParams(searchParams);
+    const currentPods = params.getAll("pod");
 
-        router.push(`/whales?${params.toString()}`, { scroll: false });
+    if (pod === "all") {
+      params.delete("pod");
+    } else if (currentPods.includes(pod)) {
+      params.delete("pod");
+      currentPods
+        .filter((p) => p !== pod)
+        .forEach((p) => params.append("pod", p));
+    } else if (!currentPods.includes(pod) && currentPods.length == 2) {
+      params.delete("pod");
+    } else {
+      params.append("pod", pod);
     }
 
-    function toggleColour(colour: string) {
-        const params = new URLSearchParams(searchParams);
+    router.push(`/whales?${params.toString()}`, { scroll: false });
+  }
 
-        params.set("colour", colour);
+  function toggleColour(colour: string) {
+    const params = new URLSearchParams(searchParams);
 
-        router.push(`/whales?${params.toString()}`, { scroll: false });
+    params.set("colour", colour);
+
+    router.push(`/whales?${params.toString()}`, { scroll: false });
+  }
+
+  /*
+   * helper function to parse active status and active pods
+   * to api path.
+   */
+  function createApiPath() {
+    const status = activeStatus === "all" ? "" : "/" + activeStatus;
+
+    const pods =
+      activePods.length === 3
+        ? ""
+        : activePods.length > 0
+          ? "/pod" + activePods.map((p) => "/" + p).join("")
+          : "";
+
+    return `${status}${pods}`;
+  }
+
+  useEffect(() => {
+    async function fetchData() {
+      const path = createApiPath();
+
+      const whalesRes = await fetch(`${API_BASE}/whales${path}`);
+      setWhales(await whalesRes.json());
+
+      const linksRes = await fetch(`${API_BASE}/network/edges${path}`);
+      setLinks(await linksRes.json());
+
+      setLoading(false);
     }
 
-    /*
-     * helper function to parse active status and active pods
-     * to api path.
-     */
-    function createApiPath() {
-        const status = activeStatus === "all" ? "" : "/" + activeStatus;
+    fetchData();
+  }, [activeStatus, activePods.join(",")]);
 
-        const pods =
-            activePods.length === 3
-                ? ""
-                : activePods.length > 0
-                    ? "/pod" + activePods.map((p) => "/" + p).join("")
-                    : "";
+  if (loading) return;
 
-        return `${status}${pods}`;
-    }
+  return (
+    <div className="w-full">
+      <h1 className="w-[85%] mx-auto text-sub/23 font-bold">
+        Meet the Residents
+      </h1>
+      <div className="flex gap-20 w-[85%] mx-auto">
+        {filterData.map((data) => (
+          <GraphFilter
+            filterData={data}
+            activeFilters={
+              data.label === "Status"
+                ? [activeStatus]
+                : data.label === "Pod"
+                  ? activePods
+                  : [activeColour]
+            }
+            onUpdateActive={
+              data.label === "Status"
+                ? toggleStatus
+                : data.label === "Pod"
+                  ? togglePod
+                  : toggleColour
+            }
+            key={data.label}
+          />
+        ))}
+      </div>
 
-    useEffect(() => {
-        async function fetchData() {
-            const path = createApiPath();
-
-            const whalesRes = await fetch(`${API_BASE}/whales${path}`);
-            setWhales(await whalesRes.json());
-
-            const linksRes = await fetch(`${API_BASE}/network/edges${path}`);
-            setLinks(await linksRes.json());
-
-            setLoading(false);
-        }
-
-        fetchData();
-    }, [activeStatus, activePods.join(",")]);
-
-    if (loading) return;
-
-    return (
-        <div className="w-full">
-            <h1 className="w-[85%] mx-auto text-sub/23 font-bold">
-                Meet the Residents
-            </h1>
-            <div className="flex gap-20 w-[85%] mx-auto">
-                {filterData.map((data) => (
-                    <GraphFilter
-                        filterData={data}
-                        activeFilters={
-                            data.label === "Status"
-                                ? [activeStatus]
-                                : data.label === "Pod"
-                                    ? activePods
-                                    : [activeColour]
-                        }
-                        onUpdateActive={
-                            data.label === "Status"
-                                ? toggleStatus
-                                : data.label === "Pod"
-                                    ? togglePod
-                                    : toggleColour
-                        }
-                        key={data.label}
-                    />
-                ))}
-            </div>
-
-            <div className="flex align-center justify-center w-full">
-                <NetworkGraph data={{ whales, links, activeColour }} />
-            </div>
-        </div>
-    );
+      <div className="flex align-center justify-center w-full">
+        <NetworkGraph data={{ whales, links, activeColour }} />
+      </div>
+    </div>
+  );
 }
