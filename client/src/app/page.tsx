@@ -3,27 +3,10 @@
 import Button from "./_components/Button/Button";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { discoverInfo } from "./content";
 
 export default function Home() {
   const router = useRouter();
-
-  const discoverInfo = [
-    {
-      header: "Meet the Whales",
-      body: "Get to know individual orcas by name. Explore their family histories, photos, birth years, and the special roles they play in their pods.",
-      path: "/whales",
-    },
-    {
-      header: "The Pod Network",
-      body: "Visualize the deep social bonds between whales. Our interactive graph lets you explore how whales are connected—by bloodlines, pods, and shared history.",
-      path: "/whales",
-    },
-    {
-      header: "Threats & Conservation",
-      body: "Learn what challenges these whales face and the ongoing work happening to protect them. Find out how you can be part of the solution.",
-      path: "/tc",
-    },
-  ];
 
   function handleButton() {
     router.push("/whales");
@@ -51,17 +34,17 @@ export default function Home() {
           Resident Connections
         </h1>
         <div className="w-[67%]">
-          <p className="text-body">
+          <p>
             Discover the incredible world of the Southern Resident Killer
             Whales—a unique, endangered population of orcas living in the waters
             of the Pacific Northwest. These whales aren’t just individuals;
             they’re part of a tightly connected family, with relationships
             spanning generations.
           </p>
-          <p className="my-5 text-body">
+          <p className="my-5">
             Resident Connections brings those connections to life.
           </p>
-          <p className="mb-7 text-body">
+          <p className="mb-7">
             Explore our interactive whale network graph to see how each whale is
             linked—by family, pod, and history.
           </p>
@@ -78,10 +61,10 @@ export default function Home() {
           <div className="w-[50%]">
             <Image
               src="/images/j32_spray.jpg"
-              alt="J Pod breach."
+              alt="J-32 spray."
               width={3592}
               height={2395}
-              className="w-[100%] h-[280px] object-cover mb-2 rounded-xs"
+              className="w-[100%] h-[280px] object-cover mb-2 rounded-sm"
             />
             <div className="text-[10px] float-right">
               (Photo:{" "}
@@ -96,13 +79,13 @@ export default function Home() {
             </div>
           </div>
           <div className="w-[45%]">
-            <p className="mb-5 text-body">
-              The Southern Residents aren't just a group of whales—they’re a
+            <p className="mb-5">
+              {`The Southern Residents aren't just a group of whales—they’re a
               family. Organized into three pods—J-Pod, K-Pod, and L-Pod—these
               orcas have unique cultures, dialects, and social structures passed
-              down through generations.
+              down through generations.`}
             </p>
-            <p className="text-body">
+            <p>
               They rely on one another for survival, and they rely on us to
               protect the environment they call home. With threats like
               declining salmon populations, ocean noise, and pollution pushing
@@ -112,13 +95,13 @@ export default function Home() {
           </div>
         </div>
       </div>
-      <div className="mx-auto w-[85%] h-[60vh]">
+      <div className="mx-auto w-[85%]">
         <h2 className="mb-10 text-sub/23 font-bold">
           {`What You'll Discover Here`}
         </h2>
-        <p className="mb-10 w-[50%] text-body">
-          Whether you're a longtime orca enthusiast, a student, or just curious,
-          Resident Connections is your hub for exploring the Southern Residents.
+        <p className="mb-10 w-[50%]">
+          {`Whether you're a longtime orca enthusiast, a student, or just curious,
+          Resident Connections is your hub for exploring the Southern Residents.`}
         </p>
         <div className="flex gap-7">
           {discoverInfo.map((info, i) => (
@@ -146,9 +129,9 @@ function DiscoverCard({ info }: DiscoverInfoProps) {
   }
 
   return (
-    <div className="w-[33%]">
+    <div className="w-[33%] rounded-md">
       <h3 className="mb-5 text-[18px] font-bold">{info.header}</h3>
-      <div className="flex flex-col justify-between h-[80%]">
+      <div className="flex flex-col justify-between gap-2 h-[80%]">
         <p className="text-body">{info.body}</p>
         <div className="w-35">
           <Button label={"Explore"} onClick={handleButton} />
