@@ -3,36 +3,7 @@
 import Button from "../_components/Button/Button";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-
-const pods = [
-  {
-    id: "J",
-    desc: "J Pod is the most frequently seen pod in the Salish Sea, often traveling along the inland waters of Washington and British Columbia year-round. Known for their tight social bonds and vocal nature, J Pod has some of the most famous individuals, including J2 Granny, who was estimated to be over 100 years old.",
-  },
-  {
-    id: "K",
-    desc: "K Pod is the smallest of the three pods, known for its wide-ranging movements between the Salish Sea and the outer Pacific coast. They are often the first to leave the inland waters in the fall, making them more difficult to track. K Pod has faced significant population challenges, with fewer surviving calves in recent years.",
-  },
-  {
-    id: "L",
-    desc: "L Pod is the largest pod, often traveling in smaller subgroups rather than as a full unit. They tend to spend more time in open waters compared to J and K pods, making them one of the most mysterious of the Southern Residents. L Pod has some of the oldest living whales, including L25 Ocean Sun, who may have been born in the late 1920s.",
-  },
-];
-
-const threats = [
-  {
-    label: "Lack of Salmon",
-    desc: "Overfishing, habitat destruction, and climate change have drastically reduced their primary food source, Chinook salmon.",
-  },
-  {
-    label: "Pollution & Contaminants",
-    desc: "Increased boat traffic and industrial noise interfere with their ability to communicate and hunt.",
-  },
-  {
-    label: "Noise Pollution",
-    desc: "Increased boat traffic and industrial noise interfere with their ability to communicate and hunt.",
-  },
-];
+import { pods, threats } from "./content";
 
 export default function About() {
   const router = useRouter();
@@ -48,7 +19,7 @@ export default function About() {
           <h1 className="mx-auto w-[60%] pb-5 text-[110px]/30 text-center font-bold">
             A Family Like No Other
           </h1>
-          <p className="mx-auto w-[50%] text-body text-center">
+          <p className="mx-auto w-[50%] text-center">
             The Southern Resident Killer Whales (SRKW) are an extraordinary
             population of orcas that live in the Salish Sea and along the
             Pacific Northwest coast. Unlike transient (Bigg’s) killer whales
@@ -73,7 +44,7 @@ export default function About() {
 
       <div className="mx-auto w-[85%] mb-20">
         <h2 className="pb-10 text-sub font-bold">A Legacy at Risk</h2>
-        <p className="w-[60%] mb-10 text-body">
+        <p className="w-[60%] mb-10">
           Once numbering over 140 individuals, the Southern Resident population
           has dropped to fewer than 75 whales. They were first recognized as an
           endangered population in 2005, and their decline has been driven by
@@ -84,26 +55,26 @@ export default function About() {
             <ThreatCard threat={threat} index={i} key={i} />
           ))}
         </div>
-        <p className="w-[60%] mt-10 text-body">
+        <p className="w-[60%] mt-10">
           Despite these challenges, conservation efforts are underway to restore
           their food supply, protect their waters, and ensure future generations
           can still witness these whales in the wild.
         </p>
       </div>
 
-      <div className="flex mx-auto w-[85%] mb-20">
+      <div className="flex mx-auto w-[85%]">
         <div className="flex flex-col w-[60%]">
           <h2 className="pb-10 text-sub/20 font-bold">
             How the Pods Stay Connected
           </h2>
-          <p className="w-[95%] pb-5 text-body">
+          <p className="w-[95%] pb-5">
             Southern Residents aren’t just a random group of whales—they are a
             family network, with individuals staying in matrilineal groups their
             entire lives. Each pod is made up of smaller family units, usually
             centered around an elder female, who acts as the leader and
             knowledge keeper.
           </p>
-          <p className="w-[95%] text-body">
+          <p className="w-[95%]">
             At Resident Connections, we’ve built a unique interactive network
             graph that lets you explore these connections—showing which whales
             are related, which travel together, and how generations are linked.
@@ -145,7 +116,7 @@ function PodCard({ pod }: PodCardProps) {
         {pod.id}
       </div>
       <div className="absolute top-30 left-15 w-[90%]">
-        <p className="text-body">{pod.desc}</p>
+        <p>{pod.desc}</p>
         <div className="w-35 pt-4 ml-50">
           <Button label="Explore" onClick={handleClick} />
         </div>
@@ -169,7 +140,7 @@ function ThreatCard({ threat, index }: ThreatCardProps) {
         <span className="font-normal">0{index + 1} </span>
         {threat.label}
       </div>
-      <p className="text-body">{threat.desc}</p>
+      <p>{threat.desc}</p>
     </div>
   );
 }
