@@ -5,6 +5,7 @@
   --color-black: #303030;
   --color-white: #fffcf3;
   --color-blue: #72b8ff;
+  --color-gray: #e4e4e4;
 
   --font-inter: "Inter", Arial, sans-serif;
 
@@ -15,4 +16,14 @@
 body {
   @apply text-white bg-black font-inter font-light;
   overflow-x: hidden;
+}
+
+h1,
+h2,
+h3 {
+  @apply text-white;
+}
+
+p {
+  @apply text-body text-gray;
 }
