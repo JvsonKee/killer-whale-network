@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import NetworkGraph from "../_components/NetworkGraph/NetworkGraph";
 import { Link } from "@/app/types/link";
 import { Whale } from "@/app/types/whale";
-import "./whales.css";
 import GraphFilter from "../_components/GraphFilter/GraphFilter";
 
 const filterData = [
@@ -116,7 +115,7 @@ export default function Whales() {
     fetchData();
   }, [activeStatus, activePods.join(",")]);
 
-  if (loading) return;
+  if (loading) return <div className="w-full h-[100vh]"></div>;
 
   return (
     <div className="w-full">
