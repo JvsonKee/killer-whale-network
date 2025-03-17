@@ -202,12 +202,16 @@ export default function NetworkGraph({ data }: NetworkGraphProps) {
       });
 
       link.attr("marker-end", (_, i) => `url(#arrowhead-${i})`);
-      svg.selectAll("marker path").attr("fill", (d) => {
-        const targetId =
-          typeof d.target === "string" ? d.target : d.target.whale_id;
-        const node = whales.find((whale) => whale.whale_id === targetId);
-        return getNodeColor(node, filterColour);
-      });
+
+      svg
+        .selectAll("marker path")
+        .data(links)
+        .attr("fill", (d) => {
+          const targetId =
+            typeof d.target === "string" ? d.target : d.target.whale_id;
+          const node = whales.find((whale) => whale.whale_id === targetId);
+          return getNodeColor(node, filterColour);
+        });
 
       nodeGroup.attr(
         "transform",
