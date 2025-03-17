@@ -1,0 +1,6 @@
+selenium
+psycopg2-binary
+python-dotenv
+flask
+flask-cors
+pandas
