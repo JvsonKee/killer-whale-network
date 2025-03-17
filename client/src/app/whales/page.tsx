@@ -1,171 +1,73 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 import NetworkGraph from "../_components/NetworkGraph/NetworkGraph";
 import { Link } from "@/app/types/link";
 import { Whale } from "@/app/types/whale";
 import GraphFilter from "../_components/GraphFilter/GraphFilter";
 
-const filterData = [
-  {
-    label: "Status",
-    filters: ["All", "Living", "Deceased"],
-  },
-  {
-    label: "Pod",
-    filters: ["All", "J", "K", "L"],
-  },
-  {
-    label: "Colour By",
-    filters: ["Gender", "Pod"],
-  },
-];
+interface WhalesProps {
+  searchParams: Promise<{
+    status: string;
+    pod: Array<string>;
+    colour: string;
+  }>;
+}
 
-export default function Whales() {
-  const [whales, setWhales] = useState<Whale[]>([]);
-  const [links, setLinks] = useState<Link[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+async function getData(path: string) {
+  const API_BASE = process.env.API_URL;
 
-  const API_BASE = process.env.NEXT_PUBLIC_API_URL;
+  const whalesRes = await fetch(`${API_BASE}/whales${path}`);
+  const linksRes = await fetch(`${API_BASE}/network/edges${path}`);
 
-  const router = useRouter();
-  const searchParams = useSearchParams();
-
-  const activeStatus = searchParams.get("status") || "all";
-  const activePods = searchParams.getAll("pod");
-  const activeColour = searchParams.get("colour") || "gender";
-
-  /*
-   * updates the active status search parameter.
-   */
-  function toggleStatus(newStatus: string) {
-    const params = new URLSearchParams(searchParams);
-
-    if (newStatus === "all") {
-      params.delete("status");
-    } else {
-      params.set("status", newStatus);
-    }
-
-    router.push(`/whales?${params.toString()}`, { scroll: false });
+  if (!whalesRes.ok || !linksRes.ok) {
+    return { whales: [], links: [] };
   }
 
-  /*
-   * pushes or deletes pods to the search parameter
-   */
-  function togglePod(pod: string) {
-    const params = new URLSearchParams(searchParams);
-    const currentPods = params.getAll("pod");
+  const whales: Whale[] = await whalesRes.json();
+  const links: Link[] = await linksRes.json();
 
-    if (pod === "all") {
-      params.delete("pod");
-    } else if (currentPods.includes(pod)) {
-      params.delete("pod");
-      currentPods
-        .filter((p) => p !== pod)
-        .forEach((p) => params.append("pod", p));
-    } else if (!currentPods.includes(pod) && currentPods.length == 2) {
-      params.delete("pod");
-    } else {
-      params.append("pod", pod);
-    }
+  return { whales, links };
+}
 
-    router.push(`/whales?${params.toString()}`, { scroll: false });
-  }
+export default async function Whales({ searchParams }: WhalesProps) {
+  const sp = await searchParams;
 
-  function toggleColour(colour: string) {
-    const params = new URLSearchParams(searchParams);
-
-    params.set("colour", colour);
-
-    router.push(`/whales?${params.toString()}`, { scroll: false });
-  }
+  const status = sp.status || "all";
+  const pods = !sp.pod ? [] : sp.pod.length === 1 ? [sp.pod] : sp.pod;
+  const activeColour = sp.colour || "gender";
 
   /*
    * helper function to parse active status and active pods
    * to api path.
    */
   function createApiPath() {
-    const status = activeStatus === "all" ? "" : "/" + activeStatus;
+    const activeStatus = status === "all" ? "" : "/" + status;
 
-    const pods =
-      activePods.length === 3
+    const activePods =
+      pods.length === 3
         ? ""
-        : activePods.length > 0
-          ? "/pod" + activePods.map((p) => "/" + p).join("")
+        : pods.length > 0
+          ? "/pod" + pods.map((p) => "/" + p).join("")
           : "";
 
-    return `${status}${pods}`;
+    return `${activeStatus}${activePods}`;
   }
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        setLoading(true);
-        setError(false);
+  const { whales, links } = await getData(createApiPath());
 
-        const path = createApiPath();
-
-        const whalesRes = await fetch(`${API_BASE}/whales${path}`);
-        const linksRes = await fetch(`${API_BASE}/network/edges${path}`);
-
-        if (!linksRes.ok || !whalesRes.ok) {
-          throw new Error("Failed to fetch data.");
-        }
-
-        setWhales(await whalesRes.json());
-        setLinks(await linksRes.json());
-      } catch {
-        setError(true);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchData();
-  }, [activeStatus, activePods.join(",")]);
+  if (!whales.length || !links.length)
+    return (
+      <div className="flex items-center justify-center h-[85vh]">
+        Error fetching data...
+      </div>
+    );
 
   return (
     <div className="w-full">
       <h1 className="w-[85%] mx-auto text-sub/23 font-bold">
         Meet the Residents
       </h1>
-      <div className="flex gap-20 w-[85%] mx-auto">
-        {filterData.map((data) => (
-          <GraphFilter
-            filterData={data}
-            activeFilters={
-              data.label === "Status"
-                ? [activeStatus]
-                : data.label === "Pod"
-                  ? activePods
-                  : [activeColour]
-            }
-            onUpdateActive={
-              data.label === "Status"
-                ? toggleStatus
-                : data.label === "Pod"
-                  ? togglePod
-                  : toggleColour
-            }
-            key={data.label}
-          />
-        ))}
-      </div>
 
-      <div className="flex align-center justify-center w-full">
-        {error ? (
-          <div className="flex items-center justify-center w-full h-[70vh]">
-            Error fetching data...
-          </div>
-        ) : loading ? (
-          <div className="w-full h-[100vh]"></div>
-        ) : (
-          <NetworkGraph data={{ whales, links, activeColour }} />
-        )}
-      </div>
+      <GraphFilter />
+      <NetworkGraph data={{ whales, links, activeColour }} />
     </div>
   );
 }
