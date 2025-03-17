@@ -7,11 +7,13 @@ whales = db.fetch_whales(cur)
 mothers = db.fetch_mothers(cur)
 # pairs = db.fetch_parent_pairs(cur)
 
+
 def parseParents(whale):
     mother = db.fetch_whale(cur, whale[5])
     father = db.fetch_whale(cur, whale[6])
 
-    if mother is None and father is None: return
+    if mother is None and father is None:
+        return
 
     if mother is not None:
         parseParents(mother)
@@ -29,7 +31,8 @@ def parseParents(whale):
 def parseChildren(whale_id, depth):
     children = db.fetch_children(cur, whale_id)
 
-    if len(children) == 0: return
+    if len(children) == 0:
+        return
 
     for child in children:
         print(f"{"   " * depth} {child[0]} {child[1]} {child[4]}")
@@ -49,10 +52,11 @@ def parseFamily():
         parseChildren(whale[0], 0)
         print()
 
+
 for whale in whales:
     parseParents(whale)
-    print('|')
-    print('V')
+    print("|")
+    print("V")
     print(whale[0])
     print()
 
@@ -75,7 +79,7 @@ for whale in whales:
 #             print(f'{"  " * depth} {mother}:m -- {father}:f --> {child}')
 
 #         depth +=  1
-    
+
 #     print()
 #     print(f'{"  " * depth}{whale[0]} {whale[1]}')
 #     print()
@@ -93,7 +97,7 @@ for whale in whales:
 #             print(f'{"  " * depth} {father}:f --> {child}')
 #         else:
 #             print(f'{"  " * depth} {mother}:m -- {father}:f --> {child}')
-        
+
 #         depth += 1
 
 #     print()
