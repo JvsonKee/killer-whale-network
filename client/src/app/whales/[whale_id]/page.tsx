@@ -9,20 +9,30 @@ interface WhaleProps {
 }
 
 async function getWhale(whale_id: string) {
-  const URL_BASE = process.env.API_URL_BASE;
+  const URL_BASE = process.env.API_URL;
 
   const res = await fetch(`${URL_BASE}/whales/${whale_id}`, {
     cache: "no-store",
   });
+
+  if (!res.ok) {
+    return;
+  }
+
   return await res.json();
 }
 
 async function getFamily(whale_id: string) {
-  const API_BASE = process.env.API_URL_BASE;
+  const API_BASE = process.env.API_URL;
 
   const res = await fetch(`${API_BASE}/whales/family/${whale_id}`, {
     cache: "no-store",
   });
+
+  if (!res.ok) {
+    return;
+  }
+
   return await res.json();
 }
 
@@ -35,6 +45,14 @@ export default async function Whale({ params }: WhaleProps) {
 
   const cellHeaderStyle = "mb-1 text-sm text-stone-300";
   const cellDataStyle = "font-bold";
+
+  if (!whale || !familyData)
+    return (
+      <div className="flex items-center justify-center w-full h-[85vh]">
+        Error fetching data...
+      </div>
+    );
+
   return (
     <div className="w-full">
       <div className="mx-auto w-[85%]">

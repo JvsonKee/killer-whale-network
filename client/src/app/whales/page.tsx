@@ -26,8 +26,9 @@ export default function Whales() {
   const [whales, setWhales] = useState<Whale[]>([]);
   const [links, setLinks] = useState<Link[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-  const API_BASE = "http://127.0.0.1:5001";
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -101,21 +102,30 @@ export default function Whales() {
 
   useEffect(() => {
     async function fetchData() {
-      const path = createApiPath();
+      try {
+        setLoading(true);
+        setError(false);
 
-      const whalesRes = await fetch(`${API_BASE}/whales${path}`);
-      setWhales(await whalesRes.json());
+        const path = createApiPath();
 
-      const linksRes = await fetch(`${API_BASE}/network/edges${path}`);
-      setLinks(await linksRes.json());
+        const whalesRes = await fetch(`${API_BASE}/whales${path}`);
+        const linksRes = await fetch(`${API_BASE}/network/edges${path}`);
 
-      setLoading(false);
+        if (!linksRes.ok || !whalesRes.ok) {
+          throw new Error("Failed to fetch data.");
+        }
+
+        setWhales(await whalesRes.json());
+        setLinks(await linksRes.json());
+      } catch {
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
     }
 
     fetchData();
   }, [activeStatus, activePods.join(",")]);
-
-  if (loading) return <div className="w-full h-[100vh]"></div>;
 
   return (
     <div className="w-full">
@@ -146,7 +156,15 @@ export default function Whales() {
       </div>
 
       <div className="flex align-center justify-center w-full">
-        <NetworkGraph data={{ whales, links, activeColour }} />
+        {error ? (
+          <div className="flex items-center justify-center w-full h-[70vh]">
+            Error fetching data...
+          </div>
+        ) : loading ? (
+          <div className="w-full h-[100vh]"></div>
+        ) : (
+          <NetworkGraph data={{ whales, links, activeColour }} />
+        )}
       </div>
     </div>
   );
