@@ -12,6 +12,6 @@ export const discoverInfo = [
   {
     header: "Threats & Conservation",
     body: "Learn what challenges these whales face and the ongoing work happening to protect them. Find out how you can be part of the solution.",
-    path: "/tc",
+    path: "/threats-and-conservation",
   },
 ];
