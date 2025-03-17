@@ -3,17 +3,15 @@ import type { Whale } from "@/app/types/whale";
 import Link from "next/link";
 
 interface WhaleProps {
-  params: {
+  params: Promise<{
     whale_id: string;
-  };
+  }>;
 }
 
 async function getWhale(whale_id: string) {
   const URL_BASE = process.env.API_URL;
 
-  const res = await fetch(`${URL_BASE}/whales/${whale_id}`, {
-    cache: "no-store",
-  });
+  const res = await fetch(`${URL_BASE}/whales/${whale_id}`);
 
   if (!res.ok) {
     return;
@@ -25,9 +23,7 @@ async function getWhale(whale_id: string) {
 async function getFamily(whale_id: string) {
   const API_BASE = process.env.API_URL;
 
-  const res = await fetch(`${API_BASE}/whales/family/${whale_id}`, {
-    cache: "no-store",
-  });
+  const res = await fetch(`${API_BASE}/whales/family/${whale_id}`);
 
   if (!res.ok) {
     return;
@@ -37,7 +33,7 @@ async function getFamily(whale_id: string) {
 }
 
 export default async function Whale({ params }: WhaleProps) {
-  const whale_id = params.whale_id;
+  const { whale_id } = await params;
   const whale: Whale = await getWhale(whale_id);
   const familyData = await getFamily(whale_id);
 
