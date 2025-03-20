@@ -36,17 +36,17 @@ export default function Home() {
         <div className="w-[67%]">
           <p>
             Discover the incredible world of the Southern Resident Killer
-            Whales—a unique, endangered population of orcas living in the waters
-            of the Pacific Northwest. These whales aren’t just individuals;
-            they’re part of a tightly connected family, with relationships
-            spanning generations.
+            Whales. A unique, endangered population of killer whales living in
+            the waters of the Pacific Northwest. These whales aren’t just
+            individuals, they’re part of a tightly connected family, with
+            relationships spanning generations.
           </p>
           <p className="my-5">
-            Resident Connections brings those connections to life.
+            <i>Resident Connections</i> brings those connections to life.
           </p>
           <p className="mb-7">
-            Explore our interactive whale network graph to see how each whale is
-            linked—by family, pod, and history.
+            Explore the interactive whale network graph to see how each whale is
+            linked, by family, pod, and history.
           </p>
           <div className="w-35">
             <Button label="Explore" onClick={handleButton} />
@@ -80,9 +80,9 @@ export default function Home() {
           </div>
           <div className="w-[45%]">
             <p className="mb-5">
-              {`The Southern Residents aren't just a group of whales—they’re a
-              family. Organized into three pods—J-Pod, K-Pod, and L-Pod—these
-              orcas have unique cultures, dialects, and social structures passed
+              {`The Southern Residents aren't just a group of whales, they’re a
+              family. Organized into three pods, J-Pod, K-Pod, and L-Pod, these
+              killer whales have unique cultures, dialects, and social structures passed
               down through generations.`}
             </p>
             <p>
@@ -100,7 +100,7 @@ export default function Home() {
           {`What You'll Discover Here`}
         </h2>
         <p className="mb-10 w-[50%]">
-          {`Whether you're a longtime orca enthusiast, a student, or just curious,
+          {`Whether you're a longtime killer whale enthusiast, a student, or just curious,
           Resident Connections is your hub for exploring the Southern Residents.`}
         </p>
         <div className="flex gap-7">

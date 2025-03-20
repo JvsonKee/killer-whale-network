@@ -18,13 +18,13 @@ export default function ThreatsAndConservation() {
             point.
           </p>
           <p>
-            For decades, these orcas have thrived in the Salish Sea, hunting
+            For decades, these whales have thrived in the Salish Sea, hunting
             salmon, raising their young, and navigating the same waters as their
             ancestors. But today, human impact is pushing them to the brink.
           </p>
           <p>
-            What’s threatening their future? And more importantly—what can we do
-            to help?
+            What’s threatening their future? And more importantly, what can we
+            do to help?
           </p>
         </div>
       </div>
