@@ -21,10 +21,10 @@ export default function About() {
           </h1>
           <p className="mx-auto w-[50%] text-center">
             The Southern Resident Killer Whales (SRKW) are an extraordinary
-            population of orcas that live in the Salish Sea and along the
-            Pacific Northwest coast. Unlike transient (Bigg’s) killer whales
-            that hunt marine mammals, Southern Residents are fish-eating orcas,
-            relying almost entirely on Chinook salmon for survival.
+            population of killer whales that live in the Salish Sea and along
+            the Pacific Northwest coast. Unlike transient (Bigg’s) killer whales
+            that hunt marine mammals, Southern Residents are fish-eating killer
+            whales, relying almost entirely on Chinook salmon for survival.
           </p>
         </div>
       </div>
@@ -68,16 +68,17 @@ export default function About() {
             How the Pods Stay Connected
           </h2>
           <p className="w-[95%] pb-5">
-            Southern Residents aren’t just a random group of whales—they are a
+            Southern Residents aren’t just a random group of whales, they are a
             family network, with individuals staying in matrilineal groups their
             entire lives. Each pod is made up of smaller family units, usually
             centered around an elder female, who acts as the leader and
             knowledge keeper.
           </p>
           <p className="w-[95%]">
-            At Resident Connections, we’ve built a unique interactive network
-            graph that lets you explore these connections—showing which whales
-            are related, which travel together, and how generations are linked.
+            At <i>Resident Connections</i>, we’ve built a unique interactive
+            network graph that lets you explore these connections, showing which
+            whales are related, which travel together, and how generations are
+            linked.
           </p>
           <div className="w-35 pt-5">
             <Button label="Explore" onClick={routeToGraph} />
