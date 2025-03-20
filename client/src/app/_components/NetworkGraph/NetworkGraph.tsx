@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect } from "react";
 import * as d3 from "d3";
 import { Whale } from "@/app/types/whale";
 import { Node } from "@/app/types/node";
@@ -16,8 +16,6 @@ interface NetworkGraphProps {
 }
 
 export default function NetworkGraph({ data }: NetworkGraphProps) {
-  const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
-
   const filterColour: string = data.activeColour;
   const svgRef = useRef<SVGSVGElement>(null);
   const simulationRef = useRef<d3.Simulation<Node, Link> | null>(null);
@@ -35,24 +33,9 @@ export default function NetworkGraph({ data }: NetworkGraphProps) {
     .range(["#DC9FFF", "#FFAB81", "#ADDAFF"]);
 
   useEffect(() => {
-    function handleResize() {
-      const container = svgRef.current?.parentElement;
+    const width = 900;
+    const height = 900;
 
-      if (container) {
-        setDimensions({
-          width: container.clientWidth,
-          height: window.innerHeight * 0.95,
-        });
-      }
-    }
-
-    handleResize();
-    window.addEventListener("resize", handleResize);
-
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  useEffect(() => {
     if (simulationRef.current) {
       simulationRef.current.stop();
     }
@@ -61,12 +44,12 @@ export default function NetworkGraph({ data }: NetworkGraphProps) {
 
     const manyNodes = whales.length > 99;
 
-    const { width, height } = dimensions;
-
     const svg = d3
       .select(svgRef.current)
       .attr("width", width)
-      .attr("height", height);
+      .attr("height", height)
+      .attr("viewBox", [-width / 2, -height / 2, width, height])
+      .attr("style", "max-width: 100%; height: auto;");
 
     svg.selectAll("*").remove();
 
@@ -90,7 +73,7 @@ export default function NetworkGraph({ data }: NetworkGraphProps) {
       });
 
     const distance = manyNodes ? 43 : 70;
-    const forceStrength = manyNodes ? -80 : -200;
+    const forceStrength = manyNodes ? -75 : -200;
 
     const simulation = d3
       .forceSimulation<Node>(whales)
@@ -102,8 +85,8 @@ export default function NetworkGraph({ data }: NetworkGraphProps) {
           .distance(distance),
       )
       .force("charge", d3.forceManyBody().strength(forceStrength))
-      .force("x", d3.forceX(width / 2))
-      .force("y", d3.forceY(height / 2));
+      .force("x", d3.forceX())
+      .force("y", d3.forceY());
 
     simulationRef.current = simulation;
 
@@ -252,7 +235,7 @@ export default function NetworkGraph({ data }: NetworkGraphProps) {
         .on("drag", dragged)
         .on("end", dragended);
     }
-  }, [data, dimensions]);
+  }, [data]);
 
   function getNodeColor(d: Node | undefined, filter: string) {
     if (!d) return "white";
