@@ -19,7 +19,7 @@ export default function Home() {
         width={100}
         height={100}
         alt="Left orca eye"
-        className="absolute -top-12 -left-5 w-60"
+        className="absolute top-16 sm:-top-12 left-0 sm:-left-5 w-21 sm:w-60"
       />
 
       <Image
@@ -27,13 +27,13 @@ export default function Home() {
         width={100}
         height={100}
         alt="Left orca right"
-        className="absolute -top-20 -right-13 w-75"
+        className="absolute top-16 sm:-top-20 -right-2 sm:-right-13 sm:w-75"
       />
-      <div className="flex flex-col justify-end mx-auto mb-30 w-[65%] h-[83vh]">
-        <h1 className="mb-10 text-[110px]/30 font-bold">
+      <div className="flex flex-col justify-end mx-auto mb-30 w-[90%] lg:w-[65%] h-[87vh] lg:h-[83vh]">
+        <h1 className="mb-5 lg:mb-10 text-[50px]/15 lg:text-[110px]/30 font-bold">
           Resident Connections
         </h1>
-        <div className="w-[67%]">
+        <div className="w-full lg:w-[67%]">
           <p>
             Discover the incredible world of the Southern Resident Killer
             Whales. A unique, endangered population of killer whales living in
@@ -53,12 +53,12 @@ export default function Home() {
           </div>
         </div>
       </div>
-      <div className="mb-20 mx-auto w-[75%]">
-        <h2 className="mx-auto mb-10 w-[70%] text-sub/23 font-bold text-center">
+      <div className="mb-20 mx-auto w-[90%] lg:w-[75%]">
+        <h2 className="mx-auto mb-10 w-full lg:w-[70%] text-[35px]/10 lg:text-sub/23 font-bold lg:text-center">
           Why the Southern Residents Matter?
         </h2>
-        <div className="flex items-center justify-center gap-[5%]">
-          <div className="w-[50%]">
+        <div className="flex flex-col lg:flex-row items-center justify-center gap-[5%]">
+          <div className="mb-5 lg:mb-0 w-full lg:w-[50%]">
             <Image
               src="/images/j32_spray.jpg"
               alt="J-32 spray."
@@ -78,7 +78,7 @@ export default function Home() {
               | CC BY-NC-ND 2.0)
             </div>
           </div>
-          <div className="w-[45%]">
+          <div className="w-full lg:w-[45%]">
             <p className="mb-5">
               {`The Southern Residents aren't just a group of whales, they’re a
               family. Organized into three pods, J-Pod, K-Pod, and L-Pod, these
@@ -95,15 +95,15 @@ export default function Home() {
           </div>
         </div>
       </div>
-      <div className="mx-auto w-[85%]">
-        <h2 className="mb-10 text-sub/23 font-bold">
+      <div className="mx-auto w-[90%] lg:w-[85%]">
+        <h2 className="mb-5 text-[35px]/10 lg:text-sub/23 font-bold">
           {`What You'll Discover Here`}
         </h2>
-        <p className="mb-10 w-[50%]">
+        <p className="mb-10 w-full lg:w-[50%]">
           {`Whether you're a longtime killer whale enthusiast, a student, or just curious,
           Resident Connections is your hub for exploring the Southern Residents.`}
         </p>
-        <div className="flex gap-7">
+        <div className="flex flex-col lg:flex-row gap-10 lg:gap-7">
           {discoverInfo.map((info, i) => (
             <DiscoverCard info={info} key={i} />
           ))}
@@ -129,9 +129,9 @@ function DiscoverCard({ info }: DiscoverInfoProps) {
   }
 
   return (
-    <div className="w-[33%] rounded-md">
+    <div className="w-full lg:w-[33%] rounded-md">
       <h3 className="mb-5 text-[18px] font-bold">{info.header}</h3>
-      <div className="flex flex-col justify-between gap-2 h-[80%]">
+      <div className="flex flex-col justify-between gap-4 lg:gap-2 h-[80%]">
         <p className="text-body">{info.body}</p>
         <div className="w-35">
           <Button label={"Explore"} onClick={handleButton} />

@@ -22,8 +22,8 @@ const links = [
 export default function Footer() {
   return (
     <div className="flex items-center justify-center mt-20 w-full h-[45vh] bg-white">
-      <div className="flex gap-30 w-[85%]">
-        <div className="w-[60%] text-[110px]/30 text-black font-bold">
+      <div className="flex flex-col lg:flex-row gap-5 lg:gap-30 w-[85%]">
+        <div className="lg:w-[60%] text-[50px]/15 lg:text-[110px]/30 text-black font-bold">
           Resident Connections
         </div>
         <div className="flex flex-col justify-end gap-5 pb-3">

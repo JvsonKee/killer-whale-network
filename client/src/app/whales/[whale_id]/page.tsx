@@ -51,12 +51,12 @@ export default async function Whale({ params }: WhaleProps) {
 
   return (
     <div className="w-full">
-      <div className="mx-auto w-[85%]">
-        <h1 className="mb-5 text-sub font-bold">
+      <div className="mx-auto w-[90%] lg:w-[85%]">
+        <h1 className="mb-5 lg:mb-10 text-[50px]/15 lg:text-sub font-bold">
           {whale.name} ({whale.whale_id})
         </h1>
-        <div>
-          <div className="flex gap-10">
+        <div className="mb-5 lg:mb-0">
+          <div className="flex justify-between lg:justify-start lg:gap-10">
             <div>
               <h2 className={cellHeaderStyle}>Birth Year</h2>
               <div className={cellDataStyle}>{whale.birth_year}</div>

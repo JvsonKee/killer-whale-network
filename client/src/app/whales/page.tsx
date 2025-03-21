@@ -62,7 +62,7 @@ export default async function Whales({ searchParams }: WhalesProps) {
 
   return (
     <div className="w-full">
-      <h1 className="w-[85%] mx-auto text-sub/23 font-bold">
+      <h1 className="mb-5 lg:mb-0 mx-auto w-[90%] lg:w-[85%] text-[35px]/10 lg:text-sub/23 font-bold">
         Meet the Residents
       </h1>
 
