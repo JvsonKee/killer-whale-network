@@ -66,7 +66,7 @@ export default function GraphFilter() {
   }
 
   return (
-    <div className="flex gap-20 w-[85%] mx-auto">
+    <div className="flex flex-col lg:flex-row gap-5 lg:gap-20 w-[90%] lg:w-[85%] mx-auto">
       {filterData.map((filter) => (
         <Filter
           filter={filter}

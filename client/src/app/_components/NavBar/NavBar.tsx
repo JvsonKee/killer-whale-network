@@ -24,7 +24,7 @@ export default function NavBar() {
   ];
 
   return (
-    <div className="flex items-center justify-center gap-20 h-[10vh]">
+    <div className="flex items-center justify-center gap-4 lg:gap-20 h-[10vh]">
       {pages.map((page) => (
         <NavLink page={page} key={page.name} />
       ))}

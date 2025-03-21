@@ -14,12 +14,12 @@ export default function About() {
 
   return (
     <div>
-      <div className="flex items-end h-[80vh] mb-40">
+      <div className="flex items-center lg:items-end h-[80vh] mb-40">
         <div className="">
-          <h1 className="mx-auto w-[60%] pb-5 text-[110px]/30 text-center font-bold">
+          <h1 className="mx-auto w-[90%] lg:w-[60%] pb-5 text-[50px]/15 lg:text-[110px]/30 text-center font-bold">
             A Family Like No Other
           </h1>
-          <p className="mx-auto w-[50%] text-center">
+          <p className="mx-auto w-[90%] lg:w-[50%] text-center">
             The Southern Resident Killer Whales (SRKW) are an extraordinary
             population of killer whales that live in the Salish Sea and along
             the Pacific Northwest coast. Unlike transient (Bigg’s) killer whales
@@ -29,10 +29,12 @@ export default function About() {
         </div>
       </div>
 
-      <div className="mx-auto w-[85%] mb-20">
-        <h2 className="text-sub font-bold">Meet the Pods</h2>
+      <div className="mx-auto w-[90%] lg:w-[85%] mb-40 lg:mb-20">
+        <h2 className="mb-5 text-[35px]/10 lg:text-sub/20 font-bold">
+          Meet the Pods
+        </h2>
         <div className="flex">
-          <div className="flex flex-col gap-40 w-[50%]">
+          <div className="flex flex-col gap-100 lg:gap-40 w-[50%]">
             <PodCard pod={pods[0]} />
             <PodCard pod={pods[2]} />
           </div>
@@ -42,29 +44,31 @@ export default function About() {
         </div>
       </div>
 
-      <div className="mx-auto w-[85%] mb-20">
-        <h2 className="pb-10 text-sub font-bold">A Legacy at Risk</h2>
-        <p className="w-[60%] mb-10">
+      <div className="mx-auto w-[90%] lg:w-[85%] mb-20">
+        <h2 className="mb-10 text-[35px]/10 lg:text-sub/20 font-bold">
+          A Legacy at Risk
+        </h2>
+        <p className="lg:w-[60%] mb-10">
           Once numbering over 140 individuals, the Southern Resident population
           has dropped to fewer than 75 whales. They were first recognized as an
           endangered population in 2005, and their decline has been driven by
           human-caused threats such as:
         </p>
-        <div className="flex justify-between gap-5">
+        <div className="flex flex-col lg:flex-row justify-between gap-5">
           {threats.map((threat, i) => (
             <ThreatCard threat={threat} index={i} key={i} />
           ))}
         </div>
-        <p className="w-[60%] mt-10">
+        <p className="lg:w-[60%] mt-10">
           Despite these challenges, conservation efforts are underway to restore
           their food supply, protect their waters, and ensure future generations
           can still witness these whales in the wild.
         </p>
       </div>
 
-      <div className="flex mx-auto w-[85%]">
-        <div className="flex flex-col w-[60%]">
-          <h2 className="pb-10 text-sub/20 font-bold">
+      <div className="flex flex-col lg:flex-row mx-auto w-[90%] lg:w-[85%]">
+        <div className="flex flex-col lg:w-[60%]">
+          <h2 className="mb-10 text-[35px]/10 lg:text-sub/20 font-bold">
             How the Pods Stay Connected
           </h2>
           <p className="w-[95%] pb-5">
@@ -90,7 +94,7 @@ export default function About() {
           width={1600}
           quality={100}
           alt="Graph screen shot."
-          className="w-[40%] object-contain"
+          className="lg:w-[40%] object-contain"
         />
       </div>
     </div>
@@ -113,10 +117,10 @@ function PodCard({ pod }: PodCardProps) {
 
   return (
     <div className="relative">
-      <div className="text-[350px]/80 text-[#5B5B5B] italic font-bold">
+      <div className="text-[200px]/50 lg:text-[350px]/80 text-[#5B5B5B] italic font-bold">
         {pod.id}
       </div>
-      <div className="absolute top-30 left-15 w-[90%]">
+      <div className="absolute top-20 lg:top-30 left-0 lg:left-15 lg:w-[90%]">
         <p>{pod.desc}</p>
         <div className="w-35 pt-4 ml-50">
           <Button label="Explore" onClick={handleClick} />
@@ -136,7 +140,7 @@ interface ThreatCardProps {
 
 function ThreatCard({ threat, index }: ThreatCardProps) {
   return (
-    <div className="flex flex-col gap-5 w-[33%]">
+    <div className="flex flex-col gap-5 lg:w-[33%]">
       <div className="text-[18px] font-bold">
         <span className="font-normal">0{index + 1} </span>
         {threat.label}
